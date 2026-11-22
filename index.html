@@ -1,0 +1,2477 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>강원이어라 · 강원 원도심 빈 상가와 청년을 잇는 공간 매칭</title>
+<meta name="description" content="강원 원도심 빈 상가를 지도에서 찾고, AI가 건물주를 설득하는 제안서를 써 드려요.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap">
+<style>
+/* 강원이어라 · 깔끔한 금융앱 톤: 흰 바탕, 큰 굵은 제목, 파란 강조, 둥근 카드
+   건물 모티프: 불 켜지는 창문(노랑) = 빈 상가가 채워짐
+   휴대폰 화면은 실제 앱(gangwonieora.vercel.app)의 남색·초록을 따름 */
+:root {
+  --blue: #3182f6;
+  --blue-d: #1b64da;
+  --blue-50: #e8f3ff;
+  --blue-100: #c9e2ff;
+  --g900: #191f28;
+  --g800: #333d4b;
+  --g700: #4e5968;
+  --g600: #6b7684;
+  --g500: #8b95a1;
+  --g400: #b0b8c1;
+  --g300: #d1d6db;
+  --g200: #e5e8eb;
+  --g100: #f2f4f6;
+  --g50: #f9fafb;
+  --win-on: #ffd66b;
+  --win-off: #cfd8e3;
+  --wall: #e3ebf6;
+  --wall-2: #d3dfee;
+  --red: #f04452;
+  --green: #03b26c;
+  --r-sm: 12px;
+  --r: 18px;
+  --r-lg: 26px;
+  --shadow: 0 2px 10px rgba(0, 27, 55, 0.06);
+  --shadow-lg: 0 12px 32px rgba(0, 27, 55, 0.10);
+  --font: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: #fff; color: var(--g900); font-family: var(--font);
+  font-size: 16px; line-height: 1.6; letter-spacing: -0.01em;
+  word-break: keep-all; overflow-wrap: break-word; -webkit-font-smoothing: antialiased;
+}
+img, svg { display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+h1, h2, h3, h4, p { margin: 0; }
+h1, h2, h3 { letter-spacing: -0.03em; line-height: 1.3; text-wrap: balance; }
+:focus-visible { outline: 3px solid var(--blue-100); outline-offset: 2px; border-radius: 8px; }
+main:focus { outline: none; }
+
+.skip { position: absolute; left: -999px; top: 8px; z-index: 100; background: var(--g900); color: #fff; padding: 8px 14px; border-radius: 8px; }
+.skip:focus { left: 8px; }
+
+.container { max-width: 1080px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
+
+/* ---------- 상단 바 ---------- */
+.topbar { position: sticky; top: 0; z-index: 50; background: rgba(255, 255, 255, 0.86); backdrop-filter: saturate(180%) blur(14px); -webkit-backdrop-filter: saturate(180%) blur(14px); border-bottom: 1px solid transparent; transition: border-color .2s; }
+.topbar.scrolled { border-bottom-color: var(--g200); }
+.topbar-in { max-width: 1080px; margin: 0 auto; height: 64px; padding: 0 20px; display: flex; align-items: center; gap: 28px; }
+.logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; letter-spacing: -0.04em; }
+.logo-mark { width: 28px; height: 28px; border-radius: 8px; background: #0f3d6e; color: #fff; font-size: 11.5px; font-weight: 800; letter-spacing: -0.05em; display: grid; place-items: center; }
+.topnav { display: flex; gap: 4px; flex: 1; }
+.topnav a { font-size: 15px; font-weight: 500; color: var(--g700); padding: 8px 12px; border-radius: 10px; transition: background .15s, color .15s; }
+.topnav a:hover { background: var(--g100); }
+.topnav a.on { color: var(--g900); font-weight: 700; }
+.nav-more { position: relative; }
+.nav-more-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 500; color: var(--g700); padding: 8px 12px; border-radius: 10px; transition: background .15s, color .15s; }
+.nav-more-btn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+.nav-more-btn:hover, .nav-more.open .nav-more-btn { background: var(--g100); }
+.nav-more-btn.on { color: var(--g900); font-weight: 700; }
+.nav-more.open .nav-more-btn svg { transform: rotate(180deg); }
+.nav-menu { position: absolute; top: calc(100% + 8px); left: 0; width: 300px; background: #fff; border-radius: var(--r); box-shadow: var(--shadow-lg); padding: 10px; display: none; gap: 2px; z-index: 60; }
+.nav-more.open .nav-menu { display: grid; }
+.topnav .nav-menu a.nm-all { background: var(--blue-50); margin-bottom: 4px; }
+.nav-menu-head { font-size: 12.5px; font-weight: 700; color: var(--g500); padding: 6px 10px 4px; }
+.topnav .nav-menu a { display: grid; gap: 2px; padding: 10px; }
+.nav-menu .nm-t { display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--g900); }
+.nav-menu .nm-t em { font-style: normal; font-size: 11.5px; font-weight: 700; color: #a86b00; background: #fff4d6; border-radius: 6px; padding: 1px 6px; }
+.nav-menu .nm-d { font-size: 13px; color: var(--g600); font-weight: 400; }
+.roadmap-note { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; background: #fff4d6; color: #7a4e00; border-radius: var(--r-sm); padding: 12px 16px; font-size: 14.5px; font-weight: 600; justify-self: start; }
+.roadmap-note b { font-weight: 800; }
+
+/* ---------- 버튼 ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 56px; padding: 0 24px; border-radius: 16px; font-size: 17px; font-weight: 700; transition: background .15s, transform .1s; white-space: nowrap; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: var(--blue-d); }
+.btn-soft { background: var(--blue-50); color: var(--blue-d); }
+.btn-soft:hover { background: var(--blue-100); }
+.btn-grey { background: var(--g100); color: var(--g800); }
+.btn-grey:hover { background: var(--g200); }
+.btn-sm { height: 40px; padding: 0 14px; border-radius: 12px; font-size: 14px; }
+.btn-block { width: 100%; }
+.btn[disabled] { background: var(--g200); color: var(--g500); cursor: not-allowed; }
+
+/* ---------- 공통 ---------- */
+.section { padding: 88px 0; }
+.section.tint { background: var(--g50); }
+.eyebrow { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+.title-xl { font-size: clamp(36px, 6vw, 56px); font-weight: 800; letter-spacing: -0.04em; line-height: 1.22; }
+.title-lg { font-size: clamp(28px, 4.2vw, 40px); font-weight: 800; }
+.title-md { font-size: clamp(22px, 3vw, 26px); font-weight: 700; }
+.lead { font-size: clamp(17px, 2vw, 19px); color: var(--g700); line-height: 1.65; }
+.sub { color: var(--g600); font-size: 15px; }
+.muted { color: var(--g500); font-size: 13px; }
+.demo-badge { justify-self: start; width: fit-content; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--g600); background: var(--g100); border-radius: 999px; padding: 4px 10px; }
+.demo-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--g400); }
+.chip { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 14px; border-radius: 999px; background: var(--g100); color: var(--g700); font-size: 14px; font-weight: 600; transition: background .15s, color .15s; }
+.chip:hover { background: var(--g200); }
+.chip.on { background: var(--g900); color: #fff; }
+.tag { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--g100); color: var(--g700); }
+.tag.blue { background: var(--blue-50); color: var(--blue-d); }
+.tag.yellow { background: #fff4d6; color: #a86b00; }
+.card { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); }
+.page-head { padding: 48px 0 28px; display: grid; gap: 10px; }
+
+/* ---------- 홈: 히어로 ---------- */
+.hero { padding: 56px 0 72px; overflow: hidden; }
+.hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+.hero-copy { display: grid; gap: 22px; }
+.hero-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.hero-art { position: relative; aspect-ratio: 1 / 1; max-width: 480px; width: 100%; justify-self: center; }
+.hero-art .bg { position: absolute; inset: 6% 4% 0; border-radius: 40px; background: linear-gradient(180deg, #eef5ff 0%, #f7fbff 100%); }
+.hero-art svg.bld { position: absolute; inset: 0; width: 100%; height: 100%; }
+.float-chip { position: absolute; display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 16px; padding: 10px 14px; box-shadow: var(--shadow-lg); font-size: 14px; font-weight: 600; white-space: nowrap; animation: floaty 5s ease-in-out infinite; }
+.float-chip .em { font-size: 20px; }
+.float-chip small { display: block; font-size: 12px; font-weight: 500; color: var(--g600); }
+.float-chip.c1 { top: 12%; left: -4%; }
+.float-chip.c2 { top: 40%; right: -6%; animation-delay: -1.6s; }
+.float-chip.c3 { bottom: 10%; left: 2%; animation-delay: -3.2s; }
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.win { fill: var(--win-off); }
+.win.lit { animation: lit .6s ease-out forwards; }
+@keyframes lit { to { fill: var(--win-on); } }
+.glow { opacity: 0; }
+.win.lit + .glow { animation: glow .6s ease-out forwards; }
+@keyframes glow { to { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) {
+  .float-chip { animation: none; }
+  .win.lit { animation: none; fill: var(--win-on); }
+  .win.lit + .glow { animation: none; opacity: .55; }
+}
+
+/* 숫자 띠 */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.stat { background: var(--g50); border-radius: var(--r); padding: 26px 24px; display: grid; gap: 6px; }
+.stat .n { font-size: clamp(32px, 4vw, 40px); font-weight: 800; letter-spacing: -0.04em; color: var(--g900); line-height: 1.15; }
+.stat .n small { font-size: 0.55em; font-weight: 700; margin-left: 2px; }
+.stat .n.blue { color: var(--blue); }
+.stat p { color: var(--g700); font-size: 15px; }
+.stat .muted { margin-top: 4px; }
+
+/* 이용 단계 */
+.steps3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+.step-card { background: #fff; border-radius: var(--r-lg); padding: 28px; display: grid; gap: 14px; align-content: start; box-shadow: var(--shadow); }
+.step-num { width: 34px; height: 34px; border-radius: 50%; background: var(--blue-50); color: var(--blue); display: grid; place-items: center; font-weight: 800; font-size: 15px; }
+.step-card h3 { font-size: 20px; }
+.step-card p { color: var(--g700); font-size: 15.5px; }
+.mini-ui { background: var(--g50); border-radius: 14px; padding: 14px; font-size: 14px; color: var(--g800); display: grid; gap: 8px; }
+.mini-ui .line { background: #fff; border-radius: 10px; padding: 10px 12px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.mini-ui .bar { height: 8px; border-radius: 4px; background: var(--g200); overflow: hidden; }
+.mini-ui .bar i { display: block; height: 100%; background: var(--blue); border-radius: 4px; }
+
+/* AI 기능 */
+.features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+.feature { background: var(--g50); border-radius: var(--r-lg); padding: 30px; display: grid; gap: 10px; align-content: start; transition: transform .2s, box-shadow .2s; }
+.feature:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); background: #fff; }
+.feature .ico { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 26px; background: #fff; box-shadow: var(--shadow); margin-bottom: 6px; }
+.feature h3 { font-size: 21px; }
+.feature p { color: var(--g700); font-size: 15.5px; }
+.feature .go { color: var(--blue); font-weight: 700; font-size: 15px; margin-top: 4px; }
+
+/* 공간 카드 */
+.space-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.space-card { display: grid; background: #fff; border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s; }
+.space-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.space-card .thumb { aspect-ratio: 16 / 10; background: var(--g100); position: relative; }
+.space-card .thumb svg { width: 100%; height: 100%; }
+.space-card .thumb .tag { position: absolute; left: 12px; top: 12px; background: rgba(255,255,255,.92); }
+.space-card .body { padding: 16px 18px 18px; display: grid; gap: 6px; }
+.space-card h3 { font-size: 17px; }
+.space-card .meta { color: var(--g600); font-size: 14px; }
+.space-card .price { font-size: 18px; font-weight: 800; }
+.space-card .price small { font-size: 13px; color: var(--g600); font-weight: 500; margin-left: 4px; }
+.space-card .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+
+/* 건물주 띠 */
+.host-band { background: var(--g900); color: #fff; border-radius: var(--r-lg); padding: 44px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+.host-band p { color: var(--g400); margin-top: 8px; }
+.host-band .btn-primary { background: #fff; color: var(--g900); }
+.host-band .btn-primary:hover { background: var(--g100); }
+
+/* ---------- 공간 찾기 ---------- */
+.notice { display: flex; gap: 10px; align-items: flex-start; background: var(--g50); border-radius: var(--r-sm); padding: 12px 14px; font-size: 14px; color: var(--g700); }
+.notice b { color: var(--g900); }
+.filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.finder { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 20px; margin-top: 18px; align-items: start; }
+.finder-list { display: grid; gap: 12px; max-height: 680px; overflow-y: auto; padding: 2px 4px 4px 2px; }
+.list-item { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 14px; background: #fff; border-radius: var(--r); padding: 12px; box-shadow: var(--shadow); border: 2px solid transparent; transition: border-color .15s; text-align: left; width: 100%; }
+.list-item.on { border-color: var(--blue); }
+.list-item .thumb { border-radius: 12px; overflow: hidden; aspect-ratio: 1; background: var(--g100); }
+.list-item .thumb svg { width: 100%; height: 100%; }
+.list-item h3 { font-size: 16px; }
+.list-item .meta { color: var(--g600); font-size: 13.5px; }
+.list-item .price { font-weight: 800; font-size: 16px; }
+.list-item .price small { font-weight: 500; color: var(--g600); font-size: 12.5px; margin-left: 3px; }
+.map-wrap { position: sticky; top: 84px; background: #eef2f6; border-radius: var(--r-lg); overflow: hidden; }
+.map-wrap svg { width: 100%; height: auto; }
+.map-legend { position: absolute; left: 14px; bottom: 14px; display: flex; gap: 12px; background: rgba(255,255,255,.94); border-radius: 12px; padding: 8px 12px; font-size: 12.5px; color: var(--g700); box-shadow: var(--shadow); }
+.map-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.map-legend i { width: 12px; height: 12px; border-radius: 4px; background: var(--blue); }
+.map-legend i.cand { background: transparent; border: 2px dashed var(--g500); border-radius: 50%; }
+.pin { cursor: pointer; }
+.pin rect, .pin path { transition: fill .15s; }
+.pin.on rect, .pin.on path { fill: var(--g900); }
+.pin:focus-visible { outline: none; }
+.pin:focus-visible rect { stroke: var(--blue-100); stroke-width: 4; }
+.empty { text-align: center; color: var(--g600); padding: 40px 0; }
+
+/* ---------- 상세 ---------- */
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--g600); font-weight: 600; font-size: 15px; margin-top: 28px; }
+.detail { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; margin: 18px 0 80px; align-items: start; }
+.detail-hero { border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 16 / 9; background: var(--g100); }
+.detail-hero svg { width: 100%; height: 100%; }
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
+.spec div { background: var(--g50); border-radius: 14px; padding: 14px; }
+.spec dt { font-size: 13px; color: var(--g600); }
+.spec dd { margin: 2px 0 0; font-weight: 700; font-size: 17px; }
+.box { background: var(--g50); border-radius: var(--r-lg); padding: 24px; display: grid; gap: 14px; }
+.box h3 { font-size: 19px; display: flex; align-items: center; gap: 8px; }
+.ai-mark { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--blue-d); background: var(--blue-50); border-radius: 6px; padding: 2px 7px; }
+.fit { display: grid; gap: 10px; }
+.fit-row { display: grid; grid-template-columns: 6.5em minmax(0, 1fr) 3em; gap: 10px; align-items: center; font-size: 14.5px; }
+.fit-row .track { height: 10px; border-radius: 5px; background: var(--g200); overflow: hidden; }
+.fit-row .track i { display: block; height: 100%; border-radius: 5px; background: var(--blue); }
+.fit-row b { text-align: right; font-variant-numeric: tabular-nums; }
+.side { position: sticky; top: 84px; display: grid; gap: 14px; }
+.side .card { padding: 24px; display: grid; gap: 14px; }
+.side .big { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; }
+.side .big small { font-size: 15px; color: var(--g600); font-weight: 500; margin-left: 4px; }
+.kv { display: grid; gap: 8px; font-size: 14.5px; }
+.kv div { display: flex; justify-content: space-between; gap: 12px; }
+.kv span { color: var(--g600); }
+.kv b { font-weight: 600; }
+.nearby { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.nearby div { background: #fff; border-radius: 12px; padding: 12px; text-align: center; }
+.nearby b { display: block; font-size: 20px; }
+.nearby span { font-size: 12.5px; color: var(--g600); }
+
+/* ---------- 한 줄 요청 ---------- */
+.req-wrap { max-width: 720px; margin: 0 auto; padding: 56px 0 96px; display: grid; gap: 22px; }
+.req-input { background: var(--g50); border-radius: var(--r-lg); padding: 22px; display: grid; gap: 14px; border: 2px solid transparent; transition: border-color .15s, background .15s; }
+.req-input:focus-within { border-color: var(--blue); background: #fff; }
+.req-input textarea { width: 100%; min-height: 84px; resize: none; border: 0; background: transparent; font: inherit; font-size: 20px; font-weight: 600; color: var(--g900); line-height: 1.5; outline: none; }
+.req-input textarea::placeholder { color: var(--g400); }
+.req-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.examples { display: flex; gap: 8px; flex-wrap: wrap; }
+.parsed { display: flex; gap: 8px; flex-wrap: wrap; }
+.loading { display: grid; gap: 12px; padding: 8px 0; }
+.load-step { display: flex; align-items: center; gap: 12px; color: var(--g500); font-size: 16px; font-weight: 600; transition: color .2s; }
+.load-step .dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--g300); display: grid; place-items: center; flex: none; transition: background .2s, border-color .2s; }
+.load-step.on { color: var(--g900); }
+.load-step.on .dot { border-color: var(--blue); border-top-color: transparent; animation: spin .8s linear infinite; }
+.load-step.done { color: var(--g900); }
+.load-step.done .dot { background: var(--blue); border-color: var(--blue); animation: none; }
+.load-step.done .dot::after { content: ""; width: 10px; height: 6px; border-left: 2.5px solid #fff; border-bottom: 2.5px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.match { display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 14px; align-items: center; background: #fff; border-radius: var(--r); padding: 12px; box-shadow: var(--shadow); }
+.match .thumb { border-radius: 12px; overflow: hidden; aspect-ratio: 1; }
+.match .thumb svg { width: 100%; height: 100%; }
+.match h3 { font-size: 16.5px; }
+.match p { font-size: 13.5px; color: var(--g600); }
+.score { text-align: center; padding: 0 8px; }
+.score b { display: block; font-size: 22px; color: var(--blue); font-weight: 800; }
+.score span { font-size: 12px; color: var(--g600); }
+.match.best { border: 2px solid var(--blue); }
+.proposal { background: #fff; border: 1px solid var(--g200); border-radius: var(--r-lg); padding: 26px; display: grid; gap: 14px; }
+.proposal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.proposal-body { white-space: pre-wrap; font-size: 15.5px; color: var(--g800); line-height: 1.75; min-height: 120px; }
+.caret::after { content: "▍"; color: var(--blue); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- 홍보 키트 ---------- */
+.kit-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 28px; margin-bottom: 96px; align-items: start; }
+.poster { aspect-ratio: 3 / 4; border-radius: var(--r-lg); padding: 28px; display: grid; align-content: space-between; color: #fff; background: linear-gradient(160deg, #3182f6 0%, #1b4fa8 100%); box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+.poster .pk { font-size: 13px; font-weight: 700; opacity: .85; letter-spacing: 0.06em; }
+.poster h3 { font-size: 34px; font-weight: 800; line-height: 1.2; }
+.poster .when { font-size: 15px; font-weight: 600; opacity: .95; }
+.poster svg { width: 72%; justify-self: center; }
+.copy-list { display: grid; gap: 12px; }
+.copy-item { background: var(--g50); border-radius: var(--r); padding: 18px 20px; display: grid; gap: 10px; }
+.copy-item p { font-size: 15.5px; color: var(--g800); white-space: pre-wrap; }
+.copy-item .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; align-items: end; height: 150px; margin-top: 8px; }
+.week div { display: grid; gap: 6px; justify-items: center; align-content: end; height: 100%; font-size: 12.5px; color: var(--g600); }
+.week i { width: 100%; max-width: 40px; border-radius: 8px 8px 4px 4px; background: var(--blue-100); display: block; }
+.week i.hi { background: var(--blue); }
+
+/* ---------- 리포트 ---------- */
+.report { display: grid; gap: 16px; margin-bottom: 96px; }
+.kpi4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi4 > div { background: var(--g50); border-radius: var(--r); padding: 20px; display: grid; gap: 4px; }
+.kpi4 span { font-size: 14px; color: var(--g600); }
+.kpi4 b { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; }
+.kpi4 em { font-style: normal; font-size: 13px; font-weight: 600; color: var(--green); }
+.report-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.hbars { display: grid; gap: 10px; }
+.hbar { display: grid; grid-template-columns: 7em minmax(0, 1fr) 4.5em; gap: 10px; align-items: center; font-size: 14.5px; }
+.hbar .track { height: 14px; border-radius: 0 6px 6px 0; border-left: 1px solid var(--g300); }
+.hbar .track i { display: block; height: 100%; border-radius: 0 6px 6px 0; background: var(--g300); }
+.hbar.hl .track i { background: var(--blue); }
+.hbar b { text-align: right; font-variant-numeric: tabular-nums; }
+.hbar.hl b { color: var(--blue); }
+.hbar span { color: var(--g700); }
+
+/* ---------- 건물주 ---------- */
+.host-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 40px; padding: 56px 0 96px; align-items: start; }
+.benefits { display: grid; gap: 14px; margin-top: 28px; }
+.benefit { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; align-items: start; }
+.benefit .ico { width: 44px; height: 44px; border-radius: 14px; background: var(--g50); display: grid; place-items: center; font-size: 22px; }
+.benefit h3 { font-size: 17px; }
+.benefit p { color: var(--g700); font-size: 15px; }
+.form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 28px; min-width: 0; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; }
+.field input, .field select { width: 100%; min-width: 0; }
+.field label, .field .lbl { font-size: 14px; font-weight: 600; color: var(--g700); }
+.field input, .field select { height: 52px; border-radius: 14px; border: 1px solid var(--g200); background: var(--g50); padding: 0 14px; font: inherit; font-size: 16px; color: var(--g900); transition: border-color .15s, background .15s; }
+.field input:focus, .field select:focus { border-color: var(--blue); background: #fff; outline: none; }
+.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: var(--g100); border-radius: 14px; padding: 4px; }
+.seg button { height: 44px; border-radius: 11px; font-size: 15px; font-weight: 600; color: var(--g600); }
+.seg button.on { background: #fff; color: var(--g900); box-shadow: var(--shadow); }
+.two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 720px) { .form { padding: 22px; } }
+
+/* ---------- 데이터 ---------- */
+.data-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.data-card { background: var(--g50); border-radius: var(--r-lg); padding: 28px; display: grid; gap: 14px; align-content: start; }
+.data-card h3 { font-size: 20px; }
+.data-card .src { font-size: 12.5px; color: var(--g500); }
+.data-card .big { font-size: 44px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; color: var(--blue); }
+.data-card .big small { font-size: 0.45em; margin-left: 2px; }
+.data-card.wide { grid-column: 1 / -1; }
+.policy-card { background: var(--blue-50); }
+.dkpi { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 8px; }
+.dkpi .k { background: var(--g50); border-radius: var(--r); padding: 20px; display: grid; gap: 6px; align-content: start; }
+.dkpi .k .who { font-size: 13px; font-weight: 700; color: var(--g500); }
+.dkpi .k .n { font-size: clamp(26px, 3.2vw, 32px); font-weight: 800; letter-spacing: -0.04em; line-height: 1.15; color: var(--g900); }
+.dkpi .k .n small { font-size: 0.55em; margin-left: 2px; }
+.dkpi .k.hl .n { color: var(--blue); }
+.dkpi .k p { font-size: 14px; color: var(--g700); }
+.dflow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 18px; font-size: 14.5px; font-weight: 600; color: var(--g700); }
+.dflow i { font-style: normal; color: var(--g400); }
+.dflow b { color: var(--blue); }
+.dnav { position: sticky; top: 64px; z-index: 40; background: rgba(255, 255, 255, .92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin-top: 16px; padding: 10px 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.dnav::-webkit-scrollbar { display: none; }
+.dnav .chip { flex: none; height: 34px; font-size: 13.5px; }
+.dchap { padding-top: 72px; scroll-margin-top: 120px; display: grid; gap: 20px; }
+.dchap-head { display: grid; gap: 8px; max-width: 720px; }
+.dchap-head .eyebrow { margin: 0; }
+.dchap-head .lead { font-size: 16.5px; }
+.takeaway { display: flex; gap: 10px; align-items: flex-start; background: var(--g900); color: #fff; border-radius: var(--r); padding: 16px 20px; font-size: 15.5px; font-weight: 600; line-height: 1.6; }
+.takeaway::before { content: "→"; color: var(--win-on); font-weight: 800; }
+.caveat { font-size: 13px; color: var(--g600); background: #fff; border: 1px dashed var(--g300); border-radius: var(--r-sm); padding: 10px 12px; }
+.caveat b { color: var(--g800); }
+.pbars { display: grid; gap: 14px; }
+.pbar { display: grid; grid-template-columns: 7em minmax(0, 1fr); gap: 10px; align-items: center; font-size: 14px; }
+.pbar > span { color: var(--g700); }
+.pbar .two { display: grid; gap: 4px; }
+.pbar .row { display: grid; grid-template-columns: minmax(0, 1fr) 4.2em; gap: 8px; align-items: center; }
+.pbar .row i { display: block; height: 12px; border-radius: 0 6px 6px 0; background: var(--g300); }
+.pbar .row.gw i { background: var(--blue); }
+.pbar .row b { font-size: 13.5px; text-align: right; font-variant-numeric: tabular-nums; }
+.pbar .row.gw b { color: var(--blue); }
+.pbar .gap { font-size: 12px; color: var(--red); font-weight: 700; }
+.legend { display: flex; gap: 14px; font-size: 13px; color: var(--g600); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend span::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--g300); }
+.legend span.gw::before { background: var(--blue); }
+.cols { display: flex; align-items: flex-end; gap: 6px; height: 170px; padding-top: 22px; border-bottom: 1px solid var(--g300); }
+.cols div { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; color: var(--g700); font-variant-numeric: tabular-nums; }
+.cols i { display: block; width: 100%; max-width: 34px; border-radius: 6px 6px 0 0; background: var(--blue-100); }
+.cols div.last i { background: var(--blue); }
+.cols div.last { color: var(--blue); }
+.cols .brk { flex: 0 0 18px; justify-content: center; color: var(--g400); font-size: 14px; }
+.cols-x { display: flex; gap: 6px; font-size: 11px; color: var(--g500); text-align: center; margin-top: 6px; }
+.cols-x span { flex: 1; }
+.cols-x .brk { flex: 0 0 18px; }
+.dbars { display: grid; gap: 10px; }
+.dbar { display: grid; grid-template-columns: 8.5em minmax(0, 1fr) 4.4em; gap: 10px; align-items: center; font-size: 14px; }
+.dbar > span { color: var(--g700); }
+.dbar .axis { position: relative; height: 14px; }
+.dbar .axis::before { content: ""; position: absolute; left: 20%; top: -4px; bottom: -4px; border-left: 1px solid var(--g400); }
+.dbar .axis i { position: absolute; top: 0; height: 100%; }
+.dbar .axis i.neg { right: 80%; background: var(--red); border-radius: 6px 0 0 6px; opacity: .85; }
+.dbar .axis i.pos { left: 20%; background: var(--green); border-radius: 0 6px 6px 0; }
+.dbar b { text-align: right; font-variant-numeric: tabular-nums; }
+.dbar b.neg { color: var(--red); }
+.dbar b.pos { color: var(--green); }
+.dbar-group { font-size: 12.5px; font-weight: 700; color: var(--g500); margin-top: 6px; }
+.vs { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.vs .big + span { font-size: 15px; color: var(--g600); font-weight: 600; }
+.rank-list { display: grid; gap: 8px; padding: 0; margin: 0; }
+.rank-list li { list-style: none; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; background: #fff; border-radius: var(--r-sm); padding: 10px 14px; font-size: 14.5px; }
+.rank-list .rk { font-size: 12px; font-weight: 800; border-radius: 6px; padding: 2px 8px; }
+.rank-list .rk.top { background: var(--blue-50); color: var(--blue-d); }
+.rank-list .rk.low { background: #ffeef0; color: var(--red); }
+.rank-list b { font-variant-numeric: tabular-nums; font-size: 14px; }
+.rank-list b small { color: var(--g500); font-weight: 500; margin-left: 4px; }
+.mini3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mini3 div { background: #fff; border-radius: var(--r-sm); padding: 12px; display: grid; gap: 2px; }
+.mini3 b { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--g900); }
+.mini3 span { font-size: 12.5px; color: var(--g600); }
+.timeline { display: grid; gap: 0; margin: 4px 0; padding: 0; }
+.timeline li { list-style: none; display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-left: 2px solid var(--blue-100); margin-left: 6px; padding-left: 16px; position: relative; font-size: 14.5px; color: var(--g800); }
+.timeline li::before { content: ""; position: absolute; left: -6px; top: 13px; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); }
+.timeline li b { color: var(--blue-d); }
+.bridge { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.bridge .bcard { background: #fff; border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 26px; display: grid; gap: 12px; align-content: start; }
+.bridge .who { font-size: 13px; font-weight: 700; color: var(--g500); }
+.bridge .pain { font-size: 15px; color: var(--g700); background: var(--g50); border-radius: var(--r-sm); padding: 10px 12px; }
+.bridge .pain b { color: var(--g900); }
+.bridge h3 { font-size: 19px; display: flex; gap: 8px; align-items: baseline; }
+.bridge h3::before { content: "→"; color: var(--blue); }
+.bridge p { font-size: 15px; color: var(--g700); }
+.bridge .num { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-weight: 800; font-size: 22px; letter-spacing: -0.03em; color: var(--blue); }
+.bridge .num s { color: var(--g400); font-weight: 600; font-size: 16px; }
+.bridge .num .demo-badge { font-size: 11.5px; letter-spacing: 0; }
+.dcta { margin: 72px 0 96px; background: var(--g50); border-radius: var(--r-lg); padding: 36px; display: grid; gap: 16px; }
+.dcta .row { display: flex; flex-wrap: wrap; gap: 10px; }
+.ctags { display: flex; flex-wrap: wrap; gap: 6px; }
+.ctag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #0f3d6e; background: #fff; border: 1px solid var(--blue-100); border-radius: 999px; padding: 3px 10px; cursor: pointer; transition: background .15s; }
+.ctag::before { content: "개념"; font-size: 10.5px; color: var(--blue); }
+.ctag:hover { background: var(--blue-50); }
+.caveat .ctag { margin-left: 4px; vertical-align: middle; }
+.mcard { background: #fff; border: 1px solid var(--g200); scroll-margin-top: 130px; }
+.mcard:target, .mcard.flash { box-shadow: 0 0 0 3px var(--blue-100); }
+.mtag { justify-self: start; font-size: 12.5px; font-weight: 800; color: #fff; background: #0f3d6e; border-radius: 6px; padding: 3px 10px; }
+.mlist { display: grid; gap: 8px; padding: 0; margin: 0; }
+.mlist li { list-style: none; font-size: 14.5px; color: var(--g700); line-height: 1.6; padding-left: 12px; border-left: 2px solid var(--blue-100); }
+.mlist li > b:first-child { display: block; color: var(--g900); font-size: 14px; }
+.mcard .mini3 div { background: var(--g50); }
+.vtable-wrap { overflow-x: auto; }
+.vtable { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+.vtable th { text-align: left; font-size: 12.5px; color: var(--g500); font-weight: 700; padding: 8px 10px; border-bottom: 2px solid var(--g200); }
+.vtable td { padding: 9px 10px; border-bottom: 1px solid var(--g100); vertical-align: top; color: var(--g700); }
+.vtable td:first-child { color: var(--g500); text-decoration: line-through; text-decoration-color: var(--g300); }
+.vtable td b { color: var(--blue-d); }
+.vtable tr.grp td { text-decoration: none; color: var(--g900); font-weight: 800; font-size: 13px; padding-top: 18px; background: none; }
+.cols div.est i { background: repeating-linear-gradient(135deg, var(--blue-100) 0 4px, #fff 4px 7px); border: 1.5px dashed var(--blue); border-bottom: 0; }
+.cols div.last.est i { background: repeating-linear-gradient(135deg, var(--blue) 0 4px, var(--blue-100) 4px 7px); }
+.cols em { font-style: normal; font-size: 10px; font-weight: 700; color: #a86b00; background: #fff4d6; border-radius: 4px; padding: 0 4px; }
+.cols-legend { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--g600); }
+.cols-legend i { width: 12px; height: 12px; border-radius: 3px; border: 1.5px dashed var(--blue); background: repeating-linear-gradient(135deg, var(--blue-100) 0 3px, #fff 3px 5px); }
+/* ---------- 로드맵 ---------- */
+.rm-track { list-style: none; padding: 0; margin: 8px 0 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: sticky; top: 64px; z-index: 40; background: rgba(255, 255, 255, .94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.rm-track li { position: relative; }
+.rm-track li::before { content: ""; position: absolute; top: 27px; left: -50%; width: 100%; height: 3px; background: var(--g200); }
+.rm-track li:first-child::before { display: none; }
+.rm-track li.done::before, .rm-track li.now::before { background: var(--blue); }
+.rm-track button { position: relative; width: 100%; display: grid; justify-items: center; gap: 2px; padding: 12px 4px; border-radius: 12px; }
+.rm-track button:hover, .rm-track button.on { background: var(--g50); }
+.rm-dot { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; font-weight: 800; background: #fff; border: 3px solid var(--g300); color: var(--g500); }
+.rm-track .done .rm-dot { background: var(--blue); border-color: var(--blue); color: #fff; }
+.rm-track .now .rm-dot { border-color: var(--blue); color: var(--blue); box-shadow: 0 0 0 5px var(--blue-50); }
+.rm-track b { font-size: 15px; margin-top: 6px; }
+.rm-track small { font-size: 12px; color: var(--g500); font-weight: 600; }
+.rm-track .now small { color: var(--blue); }
+.rm-sec { padding-top: 64px; scroll-margin-top: 150px; display: grid; gap: 18px; }
+.rm-head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.rm-head h2 { width: 100%; }
+.rm-no { font-size: 14px; font-weight: 800; color: var(--blue); }
+.rm-badge { font-size: 12px; font-weight: 700; border-radius: 6px; padding: 2px 8px; }
+.rm-badge.done { background: var(--g100); color: var(--g600); }
+.rm-badge.now { background: var(--blue); color: #fff; }
+.rm-badge.next { background: #fff4d6; color: #a86b00; }
+.rm-sec > .lead { font-size: 16.5px; max-width: 760px; }
+.rm-grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.rm-fact { background: var(--g50); border-radius: var(--r); padding: 20px; display: grid; gap: 6px; align-content: start; }
+.rm-fact span { font-size: 13px; font-weight: 700; color: var(--g500); }
+.rm-fact b { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; color: var(--blue); }
+.rm-fact p { font-size: 14px; color: var(--g700); }
+.rm-plan { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; background: var(--g50); border-radius: var(--r-lg); overflow: hidden; }
+.rm-plan div { padding: 22px 24px; display: grid; gap: 6px; border-bottom: 1px solid var(--g200); }
+.rm-plan div:nth-child(odd) { border-right: 1px solid var(--g200); }
+.rm-plan div:nth-last-child(-n+2) { border-bottom: 0; }
+.rm-plan b { font-size: 13px; color: var(--blue); }
+.rm-plan p { font-size: 15.5px; color: var(--g800); font-weight: 600; }
+.rm-feats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.rm-feats.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rm-feat { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); padding: 22px; display: grid; gap: 8px; align-content: start; transition: transform .2s, box-shadow .2s; }
+.rm-feat:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.rm-feat .ico { font-size: 24px; }
+.rm-feat b { font-size: 17px; display: flex; align-items: center; gap: 6px; }
+.rm-feat p { font-size: 14.5px; color: var(--g700); }
+.rm-feat.next { border: 2px dashed #f3d99a; box-shadow: none; background: #fffcf3; }
+.rm-feat .go { color: var(--blue); font-weight: 700; font-size: 14px; }
+.sv-why { background: var(--g900); color: #fff; border-radius: var(--r-lg); padding: 26px 28px; display: grid; gap: 12px; }
+.sv-why h3 { font-size: 17px; color: var(--win-on); }
+.sv-why ul { margin: 0; padding: 0; display: grid; gap: 10px; }
+.sv-why li { list-style: none; font-size: 15px; color: #d6dde6; line-height: 1.6; }
+.sv-why li b { color: #fff; margin-right: 8px; }
+.sv-note { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--g600); }
+.sv-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.sv-card { background: var(--g50); border-radius: var(--r); padding: 22px; display: grid; gap: 12px; }
+.sv-card h3 { font-size: 16px; }
+.sv-list { margin: 0; padding: 0; counter-reset: q; display: grid; gap: 12px; }
+.sv-list li { list-style: none; counter-increment: q; display: grid; gap: 3px; padding-left: 30px; position: relative; font-size: 14.5px; }
+.sv-list li::before { content: "Q" counter(q); position: absolute; left: 0; top: 1px; font-size: 12px; font-weight: 800; color: var(--blue); }
+.sv-list b { font-weight: 600; color: var(--g900); }
+.sv-list span { font-size: 13px; color: var(--g500); }
+.sv-flow { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+.sv-flow div { flex: 1 1 160px; background: var(--blue-50); border-radius: var(--r-sm); padding: 14px 16px; display: grid; gap: 2px; }
+.sv-flow b { color: var(--blue-d); font-size: 15px; }
+.sv-flow span { font-size: 13.5px; color: var(--g700); }
+.sv-flow i { align-self: center; font-style: normal; color: var(--g400); font-size: 18px; }
+@media (max-width: 900px) {
+  .rm-grid4, .rm-feats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sv-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .rm-track { top: 56px; }
+  .rm-track b { font-size: 13px; }
+  .rm-track small { display: none; }
+  .rm-plan, .rm-feats.two { grid-template-columns: minmax(0, 1fr); }
+  .rm-plan div:nth-child(odd) { border-right: 0; }
+  .rm-plan div:nth-last-child(2) { border-bottom: 1px solid var(--g200); }
+  .sv-flow i { display: none; }
+}
+.rm-dot svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.rm-track button { z-index: 1; }
+.pv-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; background: var(--g100); border-radius: var(--r); padding: 6px; }
+.pv-tabs button { display: grid; justify-items: center; gap: 2px; padding: 12px 10px; border-radius: 12px; font-size: 16px; font-weight: 700; color: var(--g600); transition: background .15s, color .15s; }
+.pv-tabs button small { font-size: 12.5px; font-weight: 500; color: var(--g500); }
+.pv-tabs button.on { background: #fff; color: var(--g900); box-shadow: var(--shadow); }
+.pv { border: 2px dashed #f3d99a; background: #fffdf7; border-radius: var(--r-lg); padding: 8px 28px 28px; }
+.pv .container { padding: 0; max-width: none; }
+.pv .page-head { padding: 20px 0 20px; }
+.pv .kit-grid, .pv .report { margin-bottom: 0; }
+@media (max-width: 720px) { .pv { padding: 4px 16px 20px; } .pv-tabs button small { display: none; } }
+.week div { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+.week i { flex: none; }
+
+/* ---------- 푸터, 탭바, 토스트 ---------- */
+.footer { border-top: 1px solid var(--g200); padding: 36px 0 48px; color: var(--g600); font-size: 14px; }
+.footer-in { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.footer .logo { font-size: 17px; margin-bottom: 6px; color: var(--g800); }
+.footer-note { max-width: 460px; font-size: 13px; color: var(--g500); }
+.tabbar { display: none; }
+.toast { position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 20px); background: var(--g900); color: #fff; padding: 14px 20px; border-radius: 14px; font-size: 15px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 80; max-width: calc(100vw - 32px); text-align: center; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.fade-in { animation: fadein .35s ease-out; }
+@keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 스르륵 나타나기 ---------- */
+.reveal { opacity: 0; transform: translateY(40px); transition: opacity .8s cubic-bezier(.2, .7, .2, 1), transform .8s cubic-bezier(.2, .7, .2, 1); transition-delay: var(--d, 0s); }
+.reveal.in { opacity: 1; transform: none; }
+.space-card.reveal.in:hover { transform: translateY(-3px); transition-delay: 0s; transition-duration: .2s; }
+
+/* ---------- 스크롤 스토리: 섹션이 길고, 안쪽 화면이 멈춘 채 휴대폰이 진행 ---------- */
+.story { height: var(--len, 380vh); position: relative; }
+.story.tint { background: var(--g50); }
+.story-sticky { position: sticky; top: 64px; height: calc(100vh - 64px); display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 56px; align-items: center; }
+.story-copy { display: grid; gap: 18px; align-content: center; }
+.story-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 4px; }
+.story-steps li { display: grid; gap: 6px; padding: 16px 0 16px 22px; border-left: 3px solid var(--g200); opacity: .32; transition: opacity .35s, border-color .35s; }
+.story-steps li.on { opacity: 1; border-left-color: var(--blue); }
+.story-steps b { font-size: clamp(19px, 2vw, 23px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.35; }
+.story-steps span { font-size: 16px; color: var(--g700); line-height: 1.6; max-width: 30em; }
+.story-steps a { font-size: 15px; font-weight: 700; color: var(--blue); justify-self: start; pointer-events: none; }
+.story-steps li.on a { pointer-events: auto; }
+.story-hint { margin-top: 4px; }
+
+.phone-wrap { --ps: 1; height: calc(640px * var(--ps)); display: grid; justify-items: center; align-items: start; }
+.phone { width: 310px; height: 640px; border-radius: 50px; background: #fff; border: 10px solid var(--g900); box-shadow: 0 40px 90px rgba(0, 27, 55, .18), 0 8px 24px rgba(0, 27, 55, .08); position: relative; overflow: hidden; transform: scale(var(--ps)); transform-origin: top center; }
+.phone::before { content: ""; position: absolute; top: 9px; left: 50%; width: 92px; height: 26px; transform: translateX(-50%); background: var(--g900); border-radius: 20px; z-index: 8; }
+.ph-status { height: 46px; padding: 14px 24px 0; display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 700; }
+.ph-icons { display: flex; gap: 3px; align-items: end; }
+.ph-icons i { width: 4px; border-radius: 1px; background: var(--g900); }
+.ph-icons i:nth-child(1) { height: 6px; } .ph-icons i:nth-child(2) { height: 9px; } .ph-icons i:nth-child(3) { height: 12px; }
+.scr { position: absolute; inset: 46px 0 0; padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 14px; opacity: 0; transform: translateX(28px); transition: opacity .4s ease, transform .4s ease; }
+.scr.past { transform: translateX(-28px); }
+.scr.on { opacity: 1; transform: none; }
+.scr .ai-mark { align-self: flex-start; }
+.ph-title { font-size: 25px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.3; }
+.ph-title.sm { font-size: 19px; }
+.ph-input { background: #fff; border: 2px solid var(--blue); border-radius: 18px; padding: 14px 16px; min-height: 92px; font-size: 17px; font-weight: 600; line-height: 1.5; }
+.ph-caret { display: inline-block; width: 2px; height: 19px; background: var(--blue); vertical-align: -3px; margin-left: 1px; animation: blink 1s steps(1) infinite; }
+.ph-tags { display: flex; gap: 6px; flex-wrap: wrap; opacity: 0; transform: translateY(8px); transition: opacity .35s, transform .35s; }
+.ph-tags.on { opacity: 1; transform: none; }
+.ph-btn { margin-top: auto; height: 54px; border-radius: 16px; background: var(--g200); color: var(--g500); font-weight: 700; font-size: 16px; display: grid; place-items: center; transition: background .25s, color .25s, transform .15s; flex: none; }
+.ph-btn.ready { background: var(--blue); color: #fff; }
+.ph-btn.press { transform: scale(.95); background: var(--blue-d); }
+.ph-load { display: grid; gap: 16px; margin-top: 8px; }
+.ld { display: flex; gap: 12px; align-items: center; font-size: 16px; font-weight: 600; color: var(--g400); transition: color .25s; }
+.ld .dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--g300); display: grid; place-items: center; flex: none; }
+.ld.on { color: var(--g900); }
+.ld.on .dot { border-color: var(--blue); border-top-color: transparent; animation: spin .8s linear infinite; }
+.ld.done { color: var(--g900); }
+.ld.done .dot { background: var(--blue); border-color: var(--blue); }
+.ld.done .dot::after { content: ""; width: 10px; height: 6px; border-left: 2.5px solid #fff; border-bottom: 2.5px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+.scr[data-scr="2"] { gap: 9px; }
+.ph-match { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: #fff; border-radius: 14px; padding: 7px 10px 7px 7px; box-shadow: var(--shadow); border: 2px solid transparent; opacity: 0; transform: translateY(16px); transition: opacity .4s, transform .4s; }
+.ph-match.on { opacity: 1; transform: none; }
+.ph-match.best { border-color: var(--blue); }
+.ph-match .thumb { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; }
+.ph-match .thumb svg { width: 100%; height: 100%; }
+.ph-match b { display: block; font-size: 13.5px; line-height: 1.35; }
+.ph-match small { font-size: 12px; color: var(--g600); }
+.ph-match em { font-style: normal; font-weight: 800; color: var(--blue); font-size: 16px; }
+.ph-prop { background: var(--g50); border-radius: 14px; padding: 12px 14px; display: grid; gap: 4px; opacity: 0; transform: translateY(16px); transition: opacity .4s, transform .4s; }
+.ph-prop.on { opacity: 1; transform: none; }
+.ph-prop b { font-size: 13px; color: var(--blue-d); }
+.pt { font-size: 12.5px; color: var(--g800); line-height: 1.5; opacity: .12; transition: opacity .35s; }
+.pt.on { opacity: 1; }
+.scr[data-scr="2"] .ph-btn { height: 46px; font-size: 15px; }
+.ph-notif { position: absolute; top: 0; left: 10px; right: 10px; z-index: 7; background: rgba(255, 255, 255, .97); border-radius: 20px; padding: 12px 14px; box-shadow: 0 12px 30px rgba(0, 27, 55, .18); display: grid; gap: 2px; font-size: 12.5px; color: var(--g700); transform: translateY(-120%); transition: transform .55s cubic-bezier(.2, .9, .3, 1.15); }
+.ph-notif.on { transform: translateY(44px); }
+.ph-notif b { font-size: 14.5px; color: var(--g900); }
+.ph-app { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--g500); font-weight: 600; }
+.ph-app .logo-mark { width: 16px; height: 16px; border-radius: 5px; }
+.ph-app .logo-mark i { width: 7px; height: 7px; border-radius: 2px; }
+.ph-done { display: grid; justify-items: center; text-align: center; gap: 8px; margin-top: 92px; opacity: 0; transform: scale(.9); transition: opacity .4s, transform .5s cubic-bezier(.2, .9, .3, 1.3); }
+.ph-done.on { opacity: 1; transform: none; }
+.ph-done p { color: var(--g600); font-size: 15px; }
+.ph-check svg { width: 76px; height: 76px; }
+.ph-check circle { fill: var(--blue); }
+.ph-check path { fill: none; stroke: #fff; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; transition: stroke-dashoffset .5s .25s ease-out; }
+.ph-done.on .ph-check path { stroke-dashoffset: 0; }
+.ph-rows { display: grid; gap: 2px; background: var(--g50); border-radius: 16px; padding: 6px 14px; opacity: 0; transform: translateY(14px); transition: opacity .4s, transform .4s; }
+.ph-rows.on { opacity: 1; transform: none; }
+.ph-rows div { display: flex; justify-content: space-between; gap: 8px; padding: 9px 0; font-size: 13.5px; border-bottom: 1px solid var(--g200); }
+.ph-rows div:last-child { border-bottom: 0; }
+.ph-rows span { color: var(--g600); }
+.ph-hero { border-radius: 16px; overflow: hidden; aspect-ratio: 16 / 9; }
+.ph-hero svg { width: 100%; height: 100%; }
+.ph-price { display: flex; justify-content: space-between; align-items: baseline; background: var(--blue-50); border-radius: 14px; padding: 12px 14px; }
+.ph-price span { font-size: 13px; color: var(--blue-d); font-weight: 600; }
+.ph-price b { font-size: 21px; font-weight: 800; color: var(--blue-d); }
+.ph-fit { display: grid; gap: 10px; }
+.ph-fit div { display: grid; grid-template-columns: 6.6em minmax(0, 1fr) 2em; gap: 8px; align-items: center; font-size: 13.5px; }
+.ph-fit i { height: 9px; border-radius: 5px; background: var(--g200); overflow: hidden; }
+.ph-fit em { display: block; height: 100%; width: 0; background: var(--blue); border-radius: 5px; }
+.ph-fit b { text-align: right; font-variant-numeric: tabular-nums; }
+.ph-letter { background: var(--g50); border-radius: 16px; padding: 16px; font-size: 14px; line-height: 1.75; color: var(--g800); white-space: pre-wrap; flex: 1; overflow: hidden; }
+.ph-poster { border-radius: 18px; padding: 18px; color: #fff; background: linear-gradient(160deg, #3182f6, #1b4fa8); display: grid; gap: 6px; min-height: 170px; align-content: end; }
+.ph-poster small { font-size: 11px; font-weight: 700; letter-spacing: .06em; opacity: .85; margin-bottom: auto; }
+.ph-poster b { font-size: 24px; font-weight: 800; line-height: 1.25; }
+.ph-poster span { font-size: 13px; opacity: .9; }
+.ph-sns { background: var(--g50); border-radius: 14px; padding: 12px 14px; font-size: 13.5px; color: var(--g800); opacity: 0; transform: translateY(12px); transition: opacity .4s, transform .4s; }
+.ph-sns.on { opacity: 1; transform: none; }
+.ph-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; height: 120px; align-items: end; }
+.ph-week div { display: grid; gap: 4px; justify-items: center; align-content: end; height: 100%; font-size: 11.5px; color: var(--g600); }
+.ph-week i { width: 100%; height: 0; border-radius: 6px 6px 3px 3px; background: var(--blue-100); display: block; }
+.ph-week i.hi { background: var(--blue); }
+.ph-kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ph-kpi div { background: var(--g50); border-radius: 14px; padding: 14px; display: grid; gap: 2px; }
+.ph-kpi span { font-size: 12.5px; color: var(--g600); }
+.ph-kpi b { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.ph-sum { background: var(--blue-50); color: var(--blue-d); border-radius: 14px; padding: 14px; font-size: 14px; font-weight: 600; line-height: 1.6; opacity: 0; transform: translateY(12px); transition: opacity .4s, transform .4s; }
+.ph-sum.on { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .scr, .ph-notif, .ph-done, .ph-match, .ph-prop, .ph-rows, .ph-tags, .ph-sns, .ph-sum { transition: none; }
+}
+
+/* ---------- 휴대폰 속 강원이어라 앱 화면 (실제 앱 색: 남색 #0F3D6E, 초록 #03C75A) ---------- */
+.phone.app { --navy: #0f3d6e; --green: #03c75a; --navy-50: #eef3fa; --green-50: #e6f9ee; --green-d: #028a3f; }
+.phone.app .scr { padding: 0; gap: 0; }
+.story-app { justify-self: start; margin-top: 4px; }
+.ap-bar { height: 46px; padding: 0 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--g100); flex: none; }
+.ap-logo { width: 24px; height: 24px; border-radius: 7px; background: var(--navy, #0f3d6e); color: #fff; font-size: 10px; font-style: normal; font-weight: 800; letter-spacing: -0.05em; display: grid; place-items: center; flex: none; }
+.ap-logo.sm { width: 16px; height: 16px; border-radius: 5px; font-size: 7px; }
+.ap-bar b { font-size: 15px; font-weight: 800; flex: 1; letter-spacing: -0.03em; }
+.ap-login { font-size: 10.5px; font-weight: 700; color: var(--navy); background: var(--navy-50); border-radius: 8px; padding: 5px 8px; }
+.ap-body { flex: 1; min-height: 0; padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; position: relative; }
+.ap-tabs { height: 54px; border-top: 1px solid var(--g100); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); flex: none; background: #fff; }
+.ap-tabs span { display: grid; justify-items: center; align-content: center; gap: 2px; font-size: 10px; font-weight: 600; color: var(--g500); }
+.ap-tabs svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ap-tabs span.on { color: var(--navy); font-weight: 800; }
+.ap-search { display: flex; gap: 6px; }
+.ap-search span { flex: 1; min-width: 0; background: var(--g50); border-radius: 10px; padding: 8px 10px; font-size: 11.5px; color: var(--g500); white-space: nowrap; overflow: hidden; }
+.ap-search b { background: var(--navy); color: #fff; border-radius: 10px; padding: 8px 10px; font-size: 11.5px; white-space: nowrap; }
+.ap-chips { display: flex; gap: 5px; overflow: hidden; flex: none; }
+.ap-chips span { font-size: 11px; font-weight: 700; padding: 5px 9px; border-radius: 9px; border: 1px solid var(--g200); color: var(--g700); white-space: nowrap; transition: background .25s, color .25s, border-color .25s; }
+.ap-chips span.on { background: var(--green); border-color: var(--green); color: #fff; }
+.ap-map { position: relative; flex: 1; min-height: 140px; border-radius: 14px; overflow: hidden; background: #eceee8; }
+.ap-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ap-pin { position: absolute; display: flex; align-items: center; gap: 4px; background: #fff; border: 2px solid var(--green); border-radius: 999px; padding: 2px 8px 2px 2px; font-size: 10.5px; font-weight: 800; color: var(--g900); white-space: nowrap; transform: translate(-50%, -50%) scale(0); transition: transform .4s cubic-bezier(.2, .9, .3, 1.4); box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
+.ap-pin.on { transform: translate(-50%, -50%) scale(1); }
+.ap-pin i { width: 16px; height: 16px; border-radius: 50%; background: var(--green); color: #fff; font-style: normal; font-size: 9px; display: grid; place-items: center; }
+.ap-pin.sel { background: var(--green); color: #fff; }
+.ap-pin.sel i { background: #fff; color: var(--green); }
+.ap-sheet { background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 -6px 18px rgba(0, 27, 55, .10); padding: 12px 14px; display: grid; gap: 3px; margin: 0 -14px -12px; transform: translateY(110%); transition: transform .45s cubic-bezier(.2, .8, .2, 1); flex: none; }
+.ap-sheet.on { transform: none; }
+.ap-sheet small { font-size: 10.5px; color: var(--green-d); font-weight: 700; }
+.ap-sheet b { font-size: 14px; }
+.ap-sheet .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ap-sheet strong { font-size: 15px; font-weight: 800; color: var(--navy); }
+.ap-sheet em { font-style: normal; font-size: 11px; color: var(--g500); font-weight: 500; }
+.ap-btn { height: 46px; border-radius: 12px; background: var(--navy); color: #fff; font-size: 13.5px; font-weight: 700; display: grid; place-items: center; transition: transform .15s, filter .15s; flex: none; margin-top: auto; }
+.ap-btn.sm { height: 32px; padding: 0 12px; font-size: 12px; margin: 0; }
+.ap-btn.press { transform: scale(.95); filter: brightness(1.35); }
+.ap-form { display: grid; gap: 3px; }
+.ap-form label { font-size: 11px; font-weight: 700; color: var(--g600); margin-top: 5px; }
+.ap-field { background: var(--g50); border: 1px solid var(--g200); border-radius: 10px; padding: 7px 10px; font-size: 12px; color: var(--g800); line-height: 1.45; min-height: 32px; }
+.ap-field.area { min-height: 84px; border: 2px solid var(--navy); background: #fff; }
+.ap-two { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.phone.app .ai-mark { background: var(--green-50); color: var(--green-d); }
+.phone.app .ld.on .dot { border-color: var(--navy); border-top-color: transparent; }
+.phone.app .ld.done .dot { background: var(--navy); border-color: var(--navy); }
+.ap-prop { background: var(--g50); border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+.ap-prop .t { font-size: 14px; color: var(--navy); }
+.ps { display: grid; gap: 2px; opacity: .12; transition: opacity .35s; }
+.ps.on { opacity: 1; }
+.ps em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--green-d); }
+.ps p { font-size: 12px; color: var(--g800); line-height: 1.5; }
+.ap-seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--g100); border-radius: 10px; padding: 3px; flex: none; }
+.ap-seg span { text-align: center; font-size: 12px; font-weight: 700; padding: 7px 0; color: var(--g500); border-radius: 8px; }
+.ap-seg span.on { background: #fff; color: var(--navy); box-shadow: var(--shadow); }
+.ap-card { background: #fff; border: 1px solid var(--g200); border-radius: 14px; padding: 12px; display: grid; gap: 3px; opacity: 0; transform: translateY(12px); transition: opacity .4s, transform .4s; }
+.ap-card.on { opacity: 1; transform: none; }
+.ap-card small { font-size: 10.5px; color: var(--green-d); font-weight: 700; }
+.ap-card b { font-size: 14px; }
+.ap-card .meta { font-size: 11.5px; color: var(--g600); }
+.ap-quote { font-size: 11.5px; color: var(--g700); background: var(--g50); border-radius: 8px; padding: 7px 9px; margin-top: 4px; line-height: 1.5; }
+.ap-status { margin-top: 6px; position: relative; height: 24px; }
+.ap-status i { position: absolute; left: 0; top: 0; font-style: normal; font-size: 11.5px; font-weight: 800; padding: 4px 10px; border-radius: 999px; transition: opacity .3s, transform .3s; }
+.ap-status .wait { background: #fff4d6; color: #a86b00; }
+.ap-status .ok { background: var(--green-50); color: var(--green-d); opacity: 0; transform: scale(.8); }
+.ap-status.ok .wait { opacity: 0; }
+.ap-status.ok .ok { opacity: 1; transform: none; }
+.ap-done { display: grid; justify-items: center; text-align: center; gap: 6px; margin-top: 14px; opacity: 0; transform: scale(.9); transition: opacity .4s, transform .5s cubic-bezier(.2, .9, .3, 1.3); }
+.ap-done.on { opacity: 1; transform: none; }
+.ap-done b { font-size: 19px; font-weight: 800; }
+.ap-done p { font-size: 12.5px; color: var(--g600); line-height: 1.5; }
+.ap-done .ph-check svg { width: 58px; height: 58px; }
+.ap-done .ph-check circle { fill: var(--green); }
+.ap-done.on .ph-check path { stroke-dashoffset: 0; }
+.ap-feats { display: flex; flex-wrap: wrap; gap: 5px; }
+.ap-feats span { font-size: 11px; font-weight: 700; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--g200); color: var(--g600); transition: background .25s, color .25s, border-color .25s; }
+.ap-feats span.on { border-color: var(--navy); background: var(--navy-50); color: var(--navy); }
+.ap-photos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+.ap-photos span { aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--g100); }
+.ap-photos svg { width: 100%; height: 100%; }
+.ap-price { display: flex; justify-content: space-between; align-items: baseline; background: var(--navy-50); border-radius: 12px; padding: 11px 12px; opacity: 0; transform: translateY(10px); transition: opacity .4s, transform .4s; }
+.ap-price.on { opacity: 1; transform: none; }
+.ap-price span { font-size: 11.5px; color: var(--navy); font-weight: 700; }
+.ap-price b { font-size: 20px; font-weight: 800; color: var(--navy); }
+.ap-sub { font-size: 11.5px; font-weight: 700; color: var(--g600); }
+.ap-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.ap-tags span { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: var(--green-50); color: var(--green-d); opacity: 0; transform: translateY(6px) scale(.9); transition: opacity .3s, transform .3s; }
+.ap-tags span.on { opacity: 1; transform: none; }
+.ap-time { background: var(--g50); border-radius: 12px; padding: 10px 12px; display: grid; gap: 4px; font-size: 11.5px; color: var(--g700); line-height: 1.45; opacity: 0; transition: opacity .4s; }
+.ap-time.on { opacity: 1; }
+.ap-time b { color: var(--g900); font-size: 12px; }
+.ap-map.tall { min-height: 300px; }
+.ap-toast { position: absolute; left: 50%; bottom: 22px; transform: translate(-50%, 10px); background: var(--g900); color: #fff; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 10px; opacity: 0; transition: opacity .3s, transform .3s; white-space: nowrap; }
+.ap-toast.on { opacity: 1; transform: translate(-50%, 0); }
+.ap-actions { display: grid; grid-template-columns: 1fr 1.5fr; gap: 6px; margin-top: auto; }
+.ap-actions span { height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 13.5px; font-weight: 700; transition: transform .15s, filter .15s; }
+.ap-actions .no { background: var(--g100); color: var(--g600); }
+.ap-actions .yes { background: var(--navy); color: #fff; }
+.ap-actions .yes.press { transform: scale(.95); filter: brightness(1.35); }
+@media (prefers-reduced-motion: reduce) {
+  .ap-pin, .ap-sheet, .ap-card, .ap-done, .ap-price, .ap-tags span, .ap-time, .ap-toast, .ps { transition: none; }
+}
+
+/* ---------- 홈 양옆 레일 (넓은 화면 전용) ---------- */
+[data-floor] { scroll-margin-top: 64px; }
+/* 레일은 본문 바깥 여백(--side)의 가운데에 놓이고, 여백이 넓을수록 커짐 (최대 320px) */
+.rail {
+  --side: calc(50vw - 540px);
+  --rw: clamp(224px, calc(var(--side) - 96px), 320px);
+  display: none; position: fixed; top: calc(50% + 32px); width: var(--rw); z-index: 40; transform: translateY(-50%);
+}
+/* 왼쪽 목차: 화면 맨 왼쪽 가운데. 평소엔 가로줄 6개(토스식), 마우스를 올리면 건물로 펼쳐짐 */
+.rail-left { left: 14px; width: auto; }
+@media (min-width: 1200px) { .rail-left { display: block; } }
+.toc-lines { display: grid; gap: 10px; padding: 14px 10px; justify-items: start; cursor: pointer; transition: opacity .2s; }
+.toc-lines i { display: block; width: 16px; height: 3px; border-radius: 2px; background: var(--g300); transition: width .3s, background .3s; }
+.toc-lines i.passed { background: var(--g500); }
+.toc-lines i.on { width: 26px; background: var(--g900); }
+.tower-wrap { position: absolute; left: -4px; top: 50%; transform: translate(-8px, -50%); opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; padding: 16px 18px 14px 16px; border-radius: 20px; background: rgba(255, 255, 255, .94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 12px 32px rgba(0, 27, 55, .13); }
+.rail-left:hover .tower-wrap, .rail-left:focus-within .tower-wrap { opacity: 1; transform: translate(0, -50%); pointer-events: auto; }
+.rail-left:hover .toc-lines, .rail-left:focus-within .toc-lines { opacity: 0; }
+.rail-right { right: calc((var(--side) - var(--rw)) / 2); opacity: 0; transform: translate(0, calc(-50% + 16px)); pointer-events: none; transition: opacity .4s ease, transform .4s ease; }
+.rail-right.show { opacity: 1; transform: translate(0, -50%); pointer-events: auto; }
+@media (min-width: 1680px) { .rail { display: block; } }
+.rail-panel { background: linear-gradient(180deg, #edf4ff 0%, #f7faff 100%); border-radius: 28px; padding: 22px; display: grid; gap: 20px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* 건물: 옥상(난간·계단실·안테나) → 층마다 창틀 있는 창문 3개, 오른쪽은 그늘진 옆면 → 1층 가게(차양·유리창·문) → 땅 */
+.tower { --tw: 70px; --fh: 32px; --wall: #edf2f8; --side: #d6e0ec; --band: #cdd8e6; --frame: #9fb1c7; display: grid; justify-items: start; }
+.tower-roof { position: relative; width: var(--tw); height: 18px; }
+.tower-roof::before { content: ""; position: absolute; left: 9px; bottom: 5px; width: 18px; height: 11px; background: var(--side); border-radius: 2px 2px 0 0; }
+.tower-roof::after { content: ""; position: absolute; right: 18px; bottom: 5px; width: 2px; height: 13px; background: var(--g400); border-radius: 1px; box-shadow: 4px 5px 0 -0.5px var(--g300); }
+.tower-roof span { position: absolute; left: -3px; right: -3px; bottom: 0; height: 6px; background: var(--band); border-radius: 2px; }
+.floors { list-style: none; margin: 0; padding: 0; display: grid; }
+.floors li { margin: 0; padding: 0; }
+.floor { display: grid; grid-template-columns: var(--tw) auto; align-items: center; gap: 14px; padding: 0; margin: 0; text-align: left; }
+.floor .w { width: var(--tw); height: var(--fh); background: linear-gradient(90deg, var(--wall) 0 80%, var(--side) 80% 100%); border-bottom: 3px solid var(--band); display: flex; gap: 5px; padding-right: 14px; justify-content: center; align-items: center; transition: filter .2s; }
+.floor .w i { position: relative; width: 11px; height: 16px; border: 1.5px solid var(--frame); border-bottom-width: 3px; border-radius: 1.5px; background: #c7d3e1; transition: background .45s, box-shadow .45s; }
+.floor .w i::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--frame); opacity: .7; }
+.floor.passed .w i { background: var(--win-on); }
+.floor.on .w i { background: #ffe28a; box-shadow: 0 0 8px 2px rgba(255, 196, 66, .8); }
+.floor:hover .w { filter: brightness(1.04); }
+.floor .fl { font-size: 14px; font-weight: 600; color: var(--g500); white-space: nowrap; transition: color .2s; }
+.floor.passed .fl { color: var(--g700); }
+.floor.on .fl { color: var(--blue); font-weight: 800; }
+.floor:hover .fl { color: var(--g900); }
+.floor:focus-visible { outline: none; }
+.floor:focus-visible .fl { text-decoration: underline; text-underline-offset: 3px; }
+.tower-base { position: relative; width: var(--tw); height: 34px; background: linear-gradient(90deg, #f6f9fc 0 80%, var(--side) 80% 100%); }
+.tower-base::before { content: ""; position: absolute; left: -3px; top: 0; width: calc(var(--tw) * .8 + 3px); height: 8px; border-radius: 0 0 5px 5px; background: repeating-linear-gradient(90deg, var(--blue) 0 7px, #fff 7px 14px); box-shadow: 0 2px 3px rgba(0, 27, 55, .12); }
+.tower-base::after { content: ""; position: absolute; left: 6px; bottom: 4px; width: 20px; height: 15px; border: 1.5px solid var(--frame); border-radius: 1.5px; background: linear-gradient(135deg, #dbeafe 0%, #fff 60%, #e8f0fb 100%); }
+.tower-base i { position: absolute; left: 32px; bottom: 0; width: 13px; height: 20px; background: #b9c7d8; border: 1.5px solid var(--frame); border-bottom: 0; border-radius: 2px 2px 0 0; }
+.tower::after { content: ""; width: calc(var(--tw) + 18px); height: 4px; border-radius: 2px; background: #cfd8e3; margin-left: -9px; }
+
+/* 오른쪽: 한 줄 요청 */
+.rr-head { display: flex; gap: 12px; align-items: center; }
+.rr-ico { width: 44px; height: 44px; border-radius: 14px; background: #fff; box-shadow: var(--shadow); display: grid; place-items: center; color: var(--blue); font-size: 20px; flex: none; }
+.rr-head b { display: block; font-size: 19px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.3; }
+.rr-head span { font-size: 13.5px; color: var(--g600); }
+.rail-req { display: grid; gap: 12px; }
+.rail-req textarea { width: 100%; resize: none; border: 2px solid transparent; background: #fff; border-radius: 16px; padding: 14px; font: inherit; font-size: 16px; font-weight: 600; line-height: 1.5; color: var(--g900); box-shadow: var(--shadow); transition: border-color .15s; }
+.rail-req textarea:focus { outline: none; border-color: var(--blue); }
+.rail-req textarea::placeholder { color: var(--g400); font-weight: 500; }
+.rr-ex { display: flex; flex-wrap: wrap; gap: 6px; }
+.rr-ex button { height: 32px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.8); color: var(--g700); font-size: 13px; font-weight: 600; border: 1px solid var(--g200); transition: border-color .15s, color .15s; }
+.rr-ex button:hover { border-color: var(--blue); color: var(--blue); }
+.rail-req .btn { height: 52px; border-radius: 14px; font-size: 16px; }
+.rr-steps { list-style: none; margin: 0; padding: 16px 0 0; border-top: 1px solid rgba(49, 130, 246, .15); display: grid; gap: 10px; }
+.rr-steps li { display: flex; align-items: center; gap: 10px; font-size: 14.5px; color: var(--g700); font-weight: 500; }
+.rr-steps b { width: 24px; height: 24px; border-radius: 50%; background: var(--blue-50); color: var(--blue); font-size: 12.5px; display: grid; place-items: center; flex: none; }
+@media (prefers-reduced-motion: reduce) {
+  .rail-right, .rail-stat.swap, .floor .w i { transition: none; animation: none; }
+}
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 960px) {
+  .hero-grid, .detail, .kit-grid, .host-wrap { grid-template-columns: minmax(0, 1fr); }
+  .hero-art { max-width: 420px; }
+  .finder { grid-template-columns: minmax(0, 1fr); }
+  .map-wrap { position: relative; top: 0; order: -1; }
+  .finder-list { max-height: none; overflow: visible; }
+  .space-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .side { position: static; }
+  .kit-grid .poster { max-width: 360px; }
+  /* 좁은 화면 스토리: 위에 지금 단계 설명만, 아래에 휴대폰 */
+  .story-sticky { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 18px; align-items: start; padding-top: 22px; }
+  .story-copy { gap: 8px; }
+  .story-copy .title-lg br { display: none; }
+  .story-copy .title-lg { font-size: 24px; }
+  .story-steps { margin: 0; }
+  .story-steps li { display: none; padding: 0; border: 0; }
+  .story-steps li.on { display: grid; }
+  .story-steps b { font-size: 18px; }
+  .story-steps span { font-size: 14.5px; }
+  .story-hint { display: none; }
+}
+@media (max-width: 720px) {
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .topnav, .host-link { display: none; }
+  .topbar-in { height: 56px; }
+  .section { padding: 64px 0; }
+  .hero { padding: 28px 0 48px; }
+  .stats, .steps3, .features, .data-grid, .report-two, .bridge { grid-template-columns: minmax(0, 1fr); }
+  .dkpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dnav { top: 56px; }
+  .data-card { padding: 22px; }
+  .space-grid { grid-template-columns: minmax(0, 1fr); }
+  .kpi4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nearby { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .host-band { grid-template-columns: minmax(0, 1fr); padding: 32px 24px; }
+  .hero-cta .btn { flex: 1; }
+  .float-chip { font-size: 13px; padding: 8px 12px; }
+  .float-chip.c1 { left: 0; }
+  .float-chip.c2 { right: 0; }
+  .req-input textarea { font-size: 18px; }
+  .match { grid-template-columns: 72px minmax(0, 1fr) auto; }
+  .tabbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: rgba(255,255,255,.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--g200); padding-bottom: env(safe-area-inset-bottom); }
+  .tabbar a { display: grid; justify-items: center; gap: 2px; padding: 8px 0 6px; font-size: 11px; font-weight: 600; color: var(--g500); }
+  .tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+  .tabbar a.on { color: var(--g900); }
+  .toast { bottom: calc(80px + env(safe-area-inset-bottom)); }
+  .story-sticky { top: 56px; height: calc(100vh - 56px - 64px); }
+}
+
+</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='8' fill='%230F3D6E'/%3E%3Crect x='10' y='10' width='12' height='12' rx='3' fill='%23FFD66B'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="#/" aria-label="강원이어라 홈">
+      <span class="logo-mark" aria-hidden="true">이어</span>강원이어라
+    </a>
+    <nav class="topnav" aria-label="주요 메뉴">
+      <a href="#/spaces" data-nav="spaces">공간 찾기</a>
+      <a href="#/request" data-nav="request">한 줄 요청</a>
+      <a href="#/data" data-nav="data">왜 강원이어라인가</a>
+      <a href="#/roadmap" data-nav="roadmap">로드맵</a>
+    </nav>
+    <a class="btn btn-sm btn-soft host-link" href="https://gangwonieora.vercel.app/" target="_blank" rel="noopener">앱 바로가기 <span aria-hidden="true">↗</span></a>
+  </div>
+</header>
+
+<main id="main" tabindex="-1"></main>
+
+<footer class="footer">
+  <div class="container footer-in">
+    <div>
+      <a class="logo" href="#/"><span class="logo-mark" aria-hidden="true">이어</span>강원이어라</a>
+      <p>빈 상가와 청년을 잇는 AI 공간 매칭</p>
+    </div>
+    <p class="footer-note">2026 AI 활용 전국 대학생 창업 해커톤 시연용 사이트입니다. 매물·AI 결과·리포트는 예시이며, 통계는 출처를 표시한 공개 자료입니다.</p>
+  </div>
+</footer>
+
+<nav class="tabbar" aria-label="하단 메뉴">
+  <a href="#/" data-nav="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg>홈</a>
+  <a href="#/spaces" data-nav="spaces"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>공간 찾기</a>
+  <a href="#/request" data-nav="request"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18 15l.9 2.1L21 18l-2.1.9L18 21l-.9-2.1L15 18l2.1-.9z"/></svg>한 줄 요청</a>
+  <a href="#/data" data-nav="data"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>데이터</a>
+  <a href="#/host" data-nav="host"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></svg>건물주</a>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+/* 강원이어라 시연용 사이트
+   - 해시 라우터로 페이지 전환 (#/, #/spaces, #/space/1, #/request, #/kit, #/report, #/host, #/data)
+   - 매물·AI 결과·리포트는 시연용 예시. 통계는 공개 보도·통계 자료 인용 */
+
+/* ---------------- 데이터 ---------------- */
+const SPACES = [
+  { id: 1, name: "명동길 2층 통창 상가", area: "명동길", floor: 2, size: 15, minDays: 3, maxDays: 28, price: [6, 8], uses: ["디저트", "전시", "카페"], feats: ["통창", "엘리베이터", "냉난방"], x: 262, y: 176, color: "#3182f6",
+    note: "길 쪽으로 큰 통창이 있어 지나가는 사람에게 잘 보여요. 디저트·전시 팝업에 잘 맞아요.",
+    fit: [["디저트 팝업", 92], ["소규모 전시", 88], ["카페", 74], ["원데이 클래스", 61]] },
+  { id: 2, name: "브라운5번가 1층 코너", area: "브라운5번가", floor: 1, size: 12, minDays: 1, maxDays: 14, price: [9, 12], uses: ["굿즈", "디저트", "플리마켓"], feats: ["1층", "코너 자리", "간판 가능"], x: 392, y: 262, color: "#03b26c",
+    note: "유동인구가 많은 코너 자리라 짧고 굵은 팝업에 유리해요.",
+    fit: [["굿즈 팝업", 94], ["디저트 팝업", 86], ["플리마켓", 80], ["소규모 전시", 58]] },
+  { id: 3, name: "중앙로 3층 스튜디오", area: "중앙로", floor: 3, size: 22, minDays: 1, maxDays: 28, price: [5, 7], uses: ["클래스", "공방", "전시"], feats: ["넓은 홀", "엘리베이터", "개수대"], x: 168, y: 300, color: "#7d5bf6",
+    note: "넓고 조용해서 원데이 클래스·워크숍에 좋아요. 개수대가 있어 공방 수업도 가능해요.",
+    fit: [["원데이 클래스", 93], ["공방", 87], ["소규모 전시", 79], ["디저트 팝업", 52]] },
+  { id: 4, name: "명동 골목 1층 소형 점포", area: "명동 골목", floor: 1, size: 8, minDays: 1, maxDays: 7, price: [5, 6], uses: ["플리마켓", "굿즈", "카페"], feats: ["1층", "소형", "셔터"], x: 330, y: 118, color: "#ff8a3d",
+    note: "작고 아늑해서 처음 팝업을 해 보는 팀이 부담 없이 시작하기 좋아요.",
+    fit: [["플리마켓", 89], ["굿즈 팝업", 84], ["카페", 70], ["원데이 클래스", 48]] },
+  { id: 5, name: "요선동 2층 작업실", area: "요선동", floor: 2, size: 18, minDays: 7, maxDays: 28, price: [4, 6], uses: ["공방", "전시", "클래스"], feats: ["채광", "작업대", "창고"], x: 112, y: 176, color: "#f04452",
+    note: "채광이 좋고 작업대가 있어 1~4주 동안 공방·작업실로 쓰기 좋아요.",
+    fit: [["공방", 91], ["소규모 전시", 84], ["원데이 클래스", 78], ["디저트 팝업", 45]] },
+  { id: 6, name: "조양동 1층 쇼룸", area: "조양동", floor: 1, size: 20, minDays: 3, maxDays: 28, price: [8, 10], uses: ["쇼룸", "디저트", "굿즈"], feats: ["1층", "전면 유리", "주차 2대"], x: 462, y: 364, color: "#00a6b4",
+    note: "전면이 유리라 브랜드 쇼룸이나 신제품 팝업에 잘 어울려요.",
+    fit: [["브랜드 쇼룸", 92], ["디저트 팝업", 83], ["굿즈 팝업", 81], ["원데이 클래스", 55]] }
+];
+/* 공공데이터로 찾은 '공실 가능성' 후보 (대여 불가, 참고용) */
+const CANDIDATES = [{ x: 214, y: 104 }, { x: 430, y: 150 }, { x: 300, y: 392 }, { x: 532, y: 262 }, { x: 96, y: 330 }];
+
+/* 명동 일대(조양동·운교동) 영업 중인 상가 762곳 · 소상공인시장진흥공단 상가(상권)정보 */
+const NEARBY = [["음식점", 287], ["소매", 249], ["예술·스포츠", 25], ["교육", 21]];
+
+const USE_WORDS = [["디저트", "디저트"], ["베이커리", "디저트"], ["빵", "디저트"], ["카페", "카페"], ["커피", "카페"], ["전시", "전시"], ["갤러리", "전시"], ["일러스트", "전시"], ["사진", "전시"], ["클래스", "클래스"], ["원데이", "클래스"], ["워크숍", "클래스"], ["플리마켓", "플리마켓"], ["마켓", "플리마켓"], ["공방", "공방"], ["도자기", "공방"], ["굿즈", "굿즈"], ["쇼룸", "쇼룸"], ["옷", "쇼룸"], ["의류", "쇼룸"]];
+const USE_LABEL = { 디저트: "디저트 팝업", 카페: "카페", 전시: "전시", 클래스: "원데이 클래스", 플리마켓: "플리마켓", 공방: "공방", 굿즈: "굿즈 팝업", 쇼룸: "브랜드 쇼룸" };
+const EXAMPLES = ["2주간 명동에서 15평, 수제 디저트 팝업", "주말 하루 원데이 도자기 클래스, 20평 정도", "5일 동안 일러스트 전시, 2층도 괜찮아요"];
+
+const state = { req: null, filter: "all", selected: null };
+
+/* ---------------- 유틸 ---------------- */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const won = ([a, b]) => `${a}~${b}만원`;
+const dayText = d => d % 7 === 0 && d >= 7 ? `${d / 7}주` : `${d}일`;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const eulReul = w => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c <= 11171 && c % 28 ? "을" : "를"; };
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), 2400);
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast("복사했어요"); }
+  catch { toast("복사하지 못했어요. 직접 선택해서 복사해 주세요"); }
+}
+
+/* ---------------- 그림 ---------------- */
+/* 히어로: 창문에 하나씩 불이 켜지는 건물 */
+function heroBuilding() {
+  const wins = [];
+  const cols = [116, 178, 240];
+  const rows = [118, 176, 234];
+  rows.forEach((y, r) => cols.forEach((x, c) => {
+    const i = r * 3 + c;
+    wins.push(`<rect class="win" data-i="${i}" x="${x}" y="${y}" width="44" height="40" rx="6"/><rect class="glow" x="${x - 4}" y="${y - 4}" width="52" height="48" rx="10" fill="#ffd66b" style="filter:blur(6px)"/>`);
+  }));
+  return `<svg class="bld" viewBox="0 0 400 400" aria-hidden="true">
+    <rect x="18" y="170" width="70" height="200" rx="8" fill="#dbe5f2"/>
+    <rect x="30" y="190" width="18" height="16" rx="3" fill="#c6d3e4"/><rect x="58" y="190" width="18" height="16" rx="3" fill="#c6d3e4"/>
+    <rect x="30" y="220" width="18" height="16" rx="3" fill="#c6d3e4"/><rect x="58" y="220" width="18" height="16" rx="3" fill="#c6d3e4"/>
+    <rect x="312" y="200" width="72" height="170" rx="8" fill="#dbe5f2"/>
+    <rect x="326" y="218" width="18" height="16" rx="3" fill="#c6d3e4"/><rect x="352" y="218" width="18" height="16" rx="3" fill="#c6d3e4"/>
+    <rect x="326" y="248" width="18" height="16" rx="3" fill="#c6d3e4"/><rect x="352" y="248" width="18" height="16" rx="3" fill="#c6d3e4"/>
+    <rect x="96" y="84" width="208" height="286" rx="14" fill="#ffffff" stroke="#d3dfee" stroke-width="2"/>
+    <rect x="96" y="84" width="208" height="18" rx="9" fill="#d3dfee"/>
+    ${wins.join("")}
+    <rect x="96" y="290" width="208" height="80" fill="#f2f6fb"/>
+    <path d="M96 290h208v18c-13 0-13 10-26 10s-13-10-26-10-13 10-26 10-13-10-26-10-13 10-26 10-13-10-26-10-13 10-26 10-13-10-26-10z" fill="#3182f6"/>
+    <path d="M122 290h26v18c-13 0-13 10-26 10zM174 290h26v28c-13 0-13-10-26-10zM226 290h26v18c-13 0-13 10-26 10zM278 290h26v28c-13 0-13-10-26-10z" fill="#ffffff" opacity=".9"/>
+    <rect x="118" y="326" width="70" height="44" rx="4" fill="#ffd66b" opacity=".75"/>
+    <rect x="214" y="326" width="34" height="44" rx="4" fill="#c6d3e4"/>
+    <rect x="262" y="326" width="26" height="22" rx="4" fill="#c6d3e4"/>
+    <rect x="160" y="62" width="80" height="26" rx="13" fill="#191f28"/>
+    <text x="200" y="80" text-anchor="middle" font-size="11.5" font-weight="800" fill="#ffd66b" font-family="Pretendard, sans-serif">강원이어라</text>
+    <rect x="0" y="368" width="400" height="10" rx="5" fill="#d3dfee"/>
+  </svg>`;
+}
+
+/* 매물 썸네일: 해당 층만 강조된 건물 정면 */
+function storefront(sp) {
+  const floors = 4;
+  const fh = 34, top = 30, x0 = 70, w = 180;
+  let g = "";
+  for (let f = floors; f >= 1; f--) {
+    const y = top + (floors - f) * fh;
+    const on = f === sp.floor;
+    const fill = on ? "#ffd66b" : "#d9e2ee";
+    if (f === 1) {
+      g += `<rect x="${x0}" y="${y}" width="${w}" height="${fh + 6}" fill="${on ? "#fff4d6" : "#eef3f9"}"/>
+        <rect x="${x0 + 14}" y="${y + 8}" width="${w * 0.45}" height="${fh - 8}" rx="3" fill="${fill}"/>
+        <rect x="${x0 + w * 0.62}" y="${y + 8}" width="28" height="${fh - 2}" rx="3" fill="#c6d3e4"/>`;
+    } else {
+      for (let c = 0; c < 4; c++) g += `<rect x="${x0 + 14 + c * 42}" y="${y + 8}" width="30" height="${fh - 14}" rx="4" fill="${fill}"/>`;
+    }
+    if (on) g += `<rect x="${x0 - 6}" y="${y + 2}" width="${w + 12}" height="${fh - 2}" rx="8" fill="none" stroke="${sp.color}" stroke-width="3"/>`;
+  }
+  return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="320" height="200" fill="${sp.color}" opacity=".10"/>
+    <circle cx="272" cy="40" r="20" fill="${sp.color}" opacity=".18"/>
+    <rect x="${x0}" y="${top - 8}" width="${w}" height="${floors * fh + 14}" rx="8" fill="#fff"/>
+    ${g}
+    <rect x="0" y="${top + floors * fh + 6}" width="320" height="60" fill="${sp.color}" opacity=".16"/>
+  </svg>`;
+}
+
+/* 명동 일대 개념 지도 (실제 축척 아님) */
+function mapSVG(list) {
+  const shown = new Set(list.map(s => s.id));
+  const pins = SPACES.map(sp => {
+    const label = `일 ${sp.price[0]}~${sp.price[1]}만`;
+    const w = 74;
+    const hidden = !shown.has(sp.id);
+    return `<g class="pin${state.selected === sp.id ? " on" : ""}" data-id="${sp.id}" tabindex="0" role="button" aria-label="${esc(sp.name)}, ${label}" transform="translate(${sp.x - w / 2},${sp.y - 40})" style="${hidden ? "opacity:.18;pointer-events:none" : ""}">
+      <rect width="${w}" height="30" rx="15" fill="#3182f6"/>
+      <path d="M${w / 2 - 6} 29 L${w / 2} 37 L${w / 2 + 6} 29z" fill="#3182f6"/>
+      <text x="${w / 2}" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Pretendard, sans-serif">${label}</text>
+    </g>`;
+  }).join("");
+  const cands = CANDIDATES.map(c => `<circle cx="${c.x}" cy="${c.y}" r="9" fill="rgba(255,255,255,.6)" stroke="#8b95a1" stroke-width="2" stroke-dasharray="3 3"/>`).join("");
+  return `<svg viewBox="0 0 600 470" role="group" aria-label="춘천 명동 일대 공간 지도 (개념도)">
+    <rect width="600" height="470" fill="#eef2f6"/>
+    <path d="M-10 420 C120 400 200 440 330 430 S520 400 610 420 L610 480 L-10 480z" fill="#d6e8fb"/>
+    <g fill="#fff">
+      <rect x="40" y="40" width="140" height="100" rx="12"/><rect x="200" y="40" width="170" height="100" rx="12"/><rect x="390" y="40" width="170" height="100" rx="12"/>
+      <rect x="40" y="160" width="140" height="100" rx="12"/><rect x="200" y="160" width="170" height="100" rx="12"/><rect x="390" y="160" width="170" height="100" rx="12"/>
+      <rect x="40" y="280" width="140" height="100" rx="12"/><rect x="200" y="280" width="170" height="100" rx="12"/><rect x="390" y="280" width="170" height="100" rx="12"/>
+    </g>
+    <g fill="#e6ebf1">
+      <rect x="56" y="56" width="50" height="34" rx="6"/><rect x="216" y="56" width="62" height="30" rx="6"/><rect x="408" y="60" width="46" height="40" rx="6"/>
+      <rect x="120" y="192" width="44" height="50" rx="6"/><rect x="300" y="186" width="56" height="34" rx="6"/><rect x="480" y="196" width="60" height="44" rx="6"/>
+      <rect x="62" y="300" width="56" height="40" rx="6"/><rect x="222" y="306" width="50" height="48" rx="6"/><rect x="470" y="296" width="70" height="34" rx="6"/>
+    </g>
+    <rect x="200" y="160" width="170" height="100" rx="12" fill="#e8f3ff"/>
+    <g font-family="Pretendard, sans-serif" font-size="12" font-weight="600" fill="#8b95a1">
+      <text x="285" y="153" text-anchor="middle">명동길</text>
+      <text x="285" y="273" text-anchor="middle">브라운5번가</text>
+      <text x="190" y="215" text-anchor="middle" transform="rotate(-90 190 215)">중앙로</text>
+      <text x="110" y="153" text-anchor="middle">요선동</text>
+      <text x="475" y="393" text-anchor="middle">조양동</text>
+      <text x="285" y="215" text-anchor="middle" fill="#3182f6">명동 상점가</text>
+    </g>
+    ${cands}
+    ${pins}
+  </svg>`;
+}
+
+function spaceCard(sp) {
+  return `<a class="space-card" href="#/space/${sp.id}">
+    <div class="thumb">${storefront(sp)}<span class="tag">${sp.floor}층 · ${sp.size}평</span></div>
+    <div class="body">
+      <h3>${esc(sp.name)}</h3>
+      <p class="meta">${sp.area} · ${dayText(sp.minDays)}~${dayText(sp.maxDays)} 대여</p>
+      <p class="price">일 ${won(sp.price)}<small>AI 추천가</small></p>
+      <div class="tags">${sp.uses.map(u => `<span class="tag">${USE_LABEL[u] || u}</span>`).join("")}</div>
+    </div>
+  </a>`;
+}
+
+/* ---------------- 페이지 ---------------- */
+const pages = {};
+
+pages.home = () => ({
+  html: `
+  <section class="hero" data-floor="0">
+    <div class="container hero-grid">
+      <div class="hero-copy fade-in">
+        <span class="demo-badge">춘천 명동 · 시범 지역</span>
+        <h1 class="title-xl">빈 상가에<br>청년의 불을 켜요</h1>
+        <p class="lead">하루부터 4주까지, 비어 있는 상가를 빌려 팝업·클래스·전시를 열어 보세요. 한 줄만 적으면 AI가 맞는 공간을 찾고 건물주에게 보낼 제안서까지 써 드려요.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#/request">한 줄로 공간 요청하기</a>
+          <a class="btn btn-grey" href="#/spaces">공간 둘러보기</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="bg"></div>
+        ${heroBuilding()}
+        <div class="float-chip c1"><span class="em" aria-hidden="true">🧁</span><span>수제 디저트 팝업<small>2층 · 2주</small></span></div>
+        <div class="float-chip c2"><span class="em" aria-hidden="true">🎨</span><span>일러스트 전시<small>3층 · 5일</small></span></div>
+        <div class="float-chip c3"><span class="em" aria-hidden="true">🏺</span><span>원데이 도자기 클래스<small>1층 · 하루</small></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:24px" data-floor="1">
+    <div class="container">
+      <div class="reveal"><p class="eyebrow">왜 강원이어라인가요</p>
+      <h2 class="title-lg">상가는 비어 가고,<br>청년은 공간이 없어요</h2></div>
+      <div class="stats" style="margin-top:36px">
+        <div class="stat reveal" style="--d:.05s"><span class="n blue"><span class="count" data-to="27.0" data-dec="1">27.0</span><small>%</small></span><p>춘천 명동 중대형 상가 공실률. 전국 평균(14.3%)보다 12.7%p 높아요.</p><span class="muted">한국부동산원 · 2026년 2분기 · 보도 인용, 상가 유형은 추정</span></div>
+        <div class="stat reveal" style="--d:.15s"><span class="n"><span class="count" data-to="11916">11,916</span><small>명</small></span><p>3년 동안 강원에서 수도권으로 빠져나간 20대</p><span class="muted">강원연구원 · 2023~2025 누적</span></div>
+        <div class="stat reveal" style="--d:.25s"><span class="n"><span class="count" data-to="43.3" data-dec="1">43.3</span><small>%</small></span><p>창업을 한 번 해 본 청년의 창업 의향. 해 보지 않은 청년(21.6%)의 2배예요.</p><span class="muted">한국경제인협회 · 2025</span></div>
+      </div>
+      <p class="reveal" style="margin-top:20px;--d:.3s"><a class="btn btn-sm btn-soft" href="#/data">자료 더 보기</a></p>
+    </div>
+  </section>
+
+  <section class="story tint" data-floor="2" data-story="how" style="--len:440vh">
+    <div class="story-sticky container">
+      <div class="story-copy">
+        <p class="eyebrow">청년 기획자는 이렇게 써요</p>
+        <h2 class="title-lg">공간 고르기부터 <br>건물주 수락까지</h2>
+        <ol class="story-steps">
+          <li data-s="0"><b>공실 지도에서 공간을 골라요</b><span>춘천 명동·원주 중앙동의 빈 상가를 지도에서 보고, 목적과 평수로 좁혀요.</span></li>
+          <li data-s="1"><b>AI가 건물주 설득 제안서를 써요</b><span>기간, 예산, 기획 의도만 적으면 원상복구 서약·보증금·상권 파급효과를 담은 제안서를 만들어 건물주에게 보내요.</span></li>
+          <li data-s="2"><b>건물주가 수락하면 매칭함에 떠요</b><span>보낸 제안서의 수락 상태를 매칭함에서 바로 확인해요.</span></li>
+        </ol>
+        <p class="muted story-hint">스크롤하면 강원이어라 앱 화면이 움직여요 · 시연용 예시</p>
+        <a class="btn btn-sm btn-soft story-app" href="${APP_URL}" target="_blank" rel="noopener">강원이어라 앱 열기 ↗</a>
+      </div>
+      <div class="phone-wrap"><div class="phone app" aria-hidden="true">
+        <div class="ph-status"><span>9:41</span><span class="ph-icons"><i></i><i></i><i></i></span></div>
+        <div class="ph-notif"><span class="ph-app"><i class="ap-logo sm">이어</i>강원이어라 · 지금</span><b>제안서가 수락됐어요 🎉</b><span>춘천 명동 1층 25평 유휴 상가 건물주님이 2주 대여를 수락했어요</span></div>
+        <div class="scr on" data-scr="0">
+          ${appBar("강원이어라", true)}
+          <div class="ap-body">
+            <div class="ap-search"><span>⌕ 춘천 명동·원주 중앙 상가 검색</span><b>춘천 명동 ▾</b></div>
+            <div class="ap-chips"><span class="on">전체 목적</span><span>생일카페</span><span>팝업스토어</span><span>전시</span><span>공방</span></div>
+            <div class="ap-map">${appMap([["N", "일 8만 · 25평", 28, 30], ["N", "일 9.5만 · 32평", 70, 58], ["N", "일 5.5만 · 18평", 26, 76], ["신", "일 8.5만 · 25평", 58, 24, true]])}</div>
+            <div class="ap-sheet"><small>직접 등록 · 춘천 명동 · 1층 · 25평</small><b>춘천 명동 1층 25평 유휴 상가</b><div class="row"><strong>85,000원 <em>/ 일</em></strong><span class="ap-btn sm">제안서 쓰기 →</span></div></div>
+          </div>
+          ${tabBar(0)}
+        </div>
+        <div class="scr" data-scr="1">
+          ${appBar("청년 AI 제안서")}
+          <div class="ap-body">
+            <div class="ap-form">
+              <label>대상 상가</label><div class="ap-field">[춘천 명동] 춘천 명동 1층 25평 유휴 상가 (일 85,000원)</div>
+              <label>대여 희망 기간</label><div class="ap-field">2026년 12월 4일 ~ 12월 17일 (2주)</div>
+              <label>예산 범위</label><div class="ap-field">총 119만 원 (일 8.5만 원 기준, 보증금 별도)</div>
+              <label>간단한 기획 의도</label><div class="ap-field area"><span class="ph-type"></span><i class="ph-caret"></i></div>
+            </div>
+            <div class="ap-btn">AI 건물주 설득 제안서 생성</div>
+          </div>
+          ${tabBar(2)}
+        </div>
+        <div class="scr" data-scr="2">
+          ${appBar("청년 AI 제안서")}
+          <div class="ap-body">
+            <span class="ai-mark">✦ AI 작성 중</span>
+            <h4 class="ph-title sm">건물주가 안심할<br>제안서를 쓰고 있어요</h4>
+            <div class="ph-load">${["주변 상권 분석하기", "원상복구 서약 쓰기", "보증금·대여료 정리하기", "상권 파급효과 계산하기"].map(s => `<div class="ld"><span class="dot"></span>${s}</div>`).join("")}</div>
+          </div>
+          ${tabBar(2)}
+        </div>
+        <div class="scr" data-scr="3">
+          ${appBar("청년 AI 제안서")}
+          <div class="ap-body">
+            <div class="ap-prop">
+              <b class="t">✦ 건물주 설득 제안서</b>
+              <div class="ps"><em>기획 개요</em><p>12월 4일부터 2주 동안 수제 디저트 팝업을 운영합니다.</p></div>
+              <div class="ps"><em>원상복구 서약</em><p>벽면 무타공으로 꾸미고, 퇴실 전 처음 상태로 되돌려 놓겠습니다.</p></div>
+              <div class="ps"><em>보증금·대여료</em><p>하루 8.5만 원, 총 119만 원. 보증금은 별도로 협의해요.</p></div>
+              <div class="ps"><em>상권 파급효과</em><p>강원대·한림대 하교 시간대 방문객이 명동 상권으로 이어질 거예요.</p></div>
+            </div>
+            <div class="ap-btn">건물주에게 전송</div>
+          </div>
+          ${tabBar(2)}
+        </div>
+        <div class="scr" data-scr="4">
+          ${appBar("내 DB 매칭함")}
+          <div class="ap-body">
+            <div class="ap-seg"><span class="on">보낸 제안서</span><span>받은 제안서</span></div>
+            <div class="ap-card on">
+              <small>춘천 명동 · 1층 · 25평</small>
+              <b>춘천 명동 1층 25평 유휴 상가</b>
+              <span class="meta">12월 4일 ~ 12월 17일 · 총 119만 원</span>
+              <span class="ap-status"><i class="wait">건물주 검토 중</i><i class="ok">✓ 수락됨</i></span>
+            </div>
+            <div class="ap-done"><div class="ph-check"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="26"/><path d="M15 27l8 8 15-17"/></svg></div><b>매칭 완료!</b><p>12월 4일부터 2주,<br>수제 디저트 팝업을 준비하세요</p></div>
+          </div>
+          ${tabBar(3)}
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="story" data-floor="3" data-story="ai" style="--len:420vh">
+    <div class="story-sticky container">
+      <div class="story-copy">
+        <p class="eyebrow">건물주는 이렇게 써요</p>
+        <h2 class="title-lg">빈 상가 진단부터 <br>지도 등록까지</h2>
+        <ol class="story-steps feat">
+          <li data-s="0"><b>🏢 상가 정보만 입력해요</b><span>주소, 층수, 면적, 공간 특징과 현장 사진을 올려요.</span></li>
+          <li data-s="1"><b>📊 AI가 상권과 대여료를 진단해요</b><span>주변 상권을 분석해 적정 하루 대여료, 어울리는 목적, 사람이 몰리는 시간대를 알려줘요.</span></li>
+          <li data-s="2"><b>📍 공실 지도에 바로 올라가요</b><span>진단이 끝나면 청년들이 보는 공실 지도에 매물이 바로 등록돼요.</span></li>
+          <li data-s="3"><b>✉️ 받은 제안서를 보고 수락해요</b><span>청년 기획팀이 보낸 제안서를 매칭함에서 확인하고 수락해요.</span></li>
+        </ol>
+        <a class="btn btn-sm btn-soft story-app" href="${APP_URL}" target="_blank" rel="noopener">강원이어라 앱 열기 ↗</a>
+      </div>
+      <div class="phone-wrap"><div class="phone app" aria-hidden="true">
+        <div class="ph-status"><span>9:41</span><span class="ph-icons"><i></i><i></i><i></i></span></div>
+        <div class="scr on" data-scr="0">
+          ${appBar("건물주 AI 진단")}
+          <div class="ap-body">
+            <div class="ap-form">
+              <label>상가 위치 (도로명 주소)</label><div class="ap-field"><span class="ph-write"></span><i class="ph-caret"></i></div>
+              <div class="ap-two"><div><label>층수</label><div class="ap-field">1층</div></div><div><label>면적 (평)</label><div class="ap-field">25 평</div></div></div>
+              <label>현재 상태 및 공간 특징</label>
+              <div class="ap-feats"><span>+ 전면 통유리</span><span>+ 주차 가능</span><span>+ 급배수·싱크대 완비</span><span>+ 높은 층고</span></div>
+              <label>현장 사진</label>
+              <div class="ap-photos">${[0, 1, 2, 3].map(i => `<span>${storefront(SPACES[i])}</span>`).join("")}</div>
+            </div>
+            <div class="ap-btn">AI 상권 및 공실 진단하기</div>
+          </div>
+          ${tabBar(1)}
+        </div>
+        <div class="scr" data-scr="1">
+          ${appBar("건물주 AI 진단")}
+          <div class="ap-body">
+            <span class="ai-mark">✦ AI 진단 리포트</span>
+            <h4 class="ph-title sm">춘천 명동 1층 25평</h4>
+            <div class="ap-price"><span>적정 하루 대여료</span><b>8.5만 원</b></div>
+            <p class="ap-sub">어울리는 목적</p>
+            <div class="ap-tags"><span>생일카페</span><span>팝업스토어</span><span>공방</span></div>
+            <div class="ap-time"><b>사람이 몰리는 시간</b><span>평일 15:00~19:30 · 강원대·한림대 하교 유입</span><span>주말 11:30~18:30 · 춘천역·명동 관광 동선</span></div>
+            <div class="ap-btn">공실 지도에 등록하기</div>
+          </div>
+          ${tabBar(1)}
+        </div>
+        <div class="scr" data-scr="2">
+          ${appBar("강원이어라", true)}
+          <div class="ap-body">
+            <div class="ap-chips"><span class="on">전체 목적</span><span>생일카페</span><span>팝업스토어</span><span>전시</span><span>공방</span></div>
+            <div class="ap-map tall">${appMap([["N", "일 8만 · 25평", 28, 28], ["N", "일 9.5만 · 32평", 70, 62], ["N", "일 5.5만 · 18평", 30, 78], ["신", "일 8.5만 · 25평", 56, 44, true]])}</div>
+            <div class="ap-toast">✓ 공실 지도에 등록됐어요</div>
+          </div>
+          ${tabBar(0)}
+        </div>
+        <div class="scr" data-scr="3">
+          ${appBar("내 DB 매칭함")}
+          <div class="ap-body">
+            <div class="ap-seg"><span>보낸 제안서</span><span class="on">받은 제안서</span></div>
+            <div class="ap-card">
+              <small>강원 청년문화기획팀 이어</small>
+              <b>수제 디저트 팝업 · 2주</b>
+              <span class="meta">12월 4일 ~ 12월 17일 · 총 119만 원</span>
+              <p class="ap-quote">"벽면 무타공으로 꾸미고, 퇴실 전 처음 상태로 되돌려 놓겠습니다."</p>
+              <span class="ap-status"><i class="wait">새 제안서</i><i class="ok">✓ 수락함</i></span>
+            </div>
+            <div class="ap-actions"><span class="no">거절</span><span class="yes">수락하기</span></div>
+          </div>
+          ${tabBar(3)}
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="section tint" data-floor="4">
+    <div class="container">
+      <div class="reveal" style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:28px">
+        <div><p class="eyebrow">지금 빌릴 수 있는 공간</p><h2 class="title-lg">명동 일대 공간</h2></div>
+        <a class="btn btn-sm btn-grey" href="#/spaces">전체 보기 ›</a>
+      </div>
+      <div class="space-grid">${SPACES.slice(0, 3).map((sp, i) => spaceCard(sp).replace('class="space-card"', `class="space-card reveal" style="--d:${0.08 + i * 0.1}s"`)).join("")}</div>
+      <p class="muted" style="margin-top:14px">시연용 예시 매물이에요.</p>
+    </div>
+  </section>
+
+  <section class="section" data-floor="5">
+    <div class="container">
+      <div class="host-band reveal">
+        <div>
+          <h2 class="title-md">강원이어라, 앱에서 직접 써 보세요</h2>
+          <p>공간 찾기부터 한 줄 요청, 공간 등록까지 지금 구현된 기능을 실제 앱에서 확인할 수 있어요.</p>
+        </div>
+        <a class="btn btn-primary" href="https://gangwonieora.vercel.app/" target="_blank" rel="noopener">앱으로 이동 <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <nav class="rail rail-left" aria-label="페이지 안내">
+    <div class="toc-lines" aria-hidden="true">${FLOORS.map(() => "<i></i>").join("")}</div>
+    <div class="tower-wrap">
+      <div class="tower">
+        <div class="tower-roof" aria-hidden="true"><span></span></div>
+        <ol class="floors">${FLOORS.map((f, i) => `<li><button class="floor" type="button" data-go="${i}" aria-label="${f.label} 섹션으로 이동"><span class="w" aria-hidden="true"><i></i><i></i><i></i></span><span class="fl" aria-hidden="true">${f.label}</span></button></li>`).join("")}</ol>
+        <div class="tower-base" aria-hidden="true"><i></i></div>
+      </div>
+    </div>
+  </nav>
+
+  <aside class="rail rail-right" aria-label="빠른 요청">
+    <div class="rail-panel">
+      <div class="rr-head"><span class="rr-ico" aria-hidden="true">✦</span><div><b>한 줄로 요청하기</b><span>적기만 하면 AI가 공간을 찾아요</span></div></div>
+      <form class="rail-req" id="railForm">
+        <label for="railText" class="sr-only">요청 내용</label>
+        <textarea id="railText" rows="3" maxlength="120" placeholder="예: 2주간 15평, 수제 디저트 팝업"></textarea>
+        <div class="rr-ex" aria-label="예시">${["디저트 팝업 2주", "도자기 클래스 하루", "일러스트 전시 5일"].map((t, i) => `<button type="button" data-ex="${i}">${t}</button>`).join("")}</div>
+        <button class="btn btn-primary btn-block" type="submit">AI에게 맡기기</button>
+      </form>
+      <ol class="rr-steps"><li><b>1</b>맞는 공간 3곳 추천</li><li><b>2</b>적정 대여료 계산</li><li><b>3</b>건물주 제안서 작성</li></ol>
+    </div>
+  </aside>`,
+  mount() {
+    const wins = $$(".hero .win");
+    const order = [4, 0, 7, 2, 5, 3];      // 9개 중 6개만 켜짐: 남은 3칸은 아직 빈 공간
+    order.forEach((i, k) => setTimeout(() => wins[i] && wins[i].classList.add("lit"), 500 + k * 420));
+
+    /* 왼쪽 목차: 평소엔 가로줄 6개, 마우스를 올리면 건물. 섹션 = 건물 한 층, 지나온 층은 불이 켜지고 지금 층은 빛남 */
+    const floors = $$(".floor"), lines = $$(".toc-lines i"), secs = $$("[data-floor]", $("#main"));
+    let cur = -1;
+    const setFloor = i => {
+      if (i === cur) return;
+      cur = i;
+      floors.forEach((f, k) => {
+        f.classList.toggle("on", k === i);
+        f.classList.toggle("passed", k < i);
+        if (k === i) f.setAttribute("aria-current", "step"); else f.removeAttribute("aria-current");
+      });
+      lines.forEach((l, k) => { l.classList.toggle("on", k === i); l.classList.toggle("passed", k < i); });
+    };
+    floors.forEach(f => f.addEventListener("click", () => secs[+f.dataset.go].scrollIntoView({ behavior: "smooth", block: "start" })));
+
+    /* 오른쪽: 첫 화면 버튼이 사라지면 나타나는 한 줄 요청창 */
+    const right = $(".rail-right"), cta = $(".hero-cta");
+
+    /* 스크롤 위치로 현재 층과 요청창 표시를 계산 (화면 45% 지점을 지난 마지막 섹션) */
+    const update = () => {
+      const line = innerHeight * 0.45;
+      let i = 0;
+      secs.forEach((s, k) => { if (s.getBoundingClientRect().top <= line) i = k; });
+      if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) i = secs.length - 1;
+      setFloor(i);
+      /* 이용 방법 섹션에서는 가운데 휴대폰이 같은 내용을 보여주므로 오른쪽 요청창을 숨김 */
+      right.classList.toggle("show", cta.getBoundingClientRect().bottom < 64 && i !== 2);
+      stories.forEach(st => st.tick());
+    };
+    const stories = $$(".story").map(makeStory);
+    const onScroll = () => update();   /* 섹션 위치만 읽어서 가벼움 */
+    const onResize = () => { stories.forEach(st => st.fit()); update(); };
+    addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("resize", onResize);
+    update();
+    const ta = $("#railText");
+    $(".rr-ex").addEventListener("click", e => { const b = e.target.closest("[data-ex]"); if (b) { ta.value = EXAMPLES[+b.dataset.ex]; ta.focus(); } });
+    ta.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitForm($("#railForm")); } });
+    $("#railForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const v = ta.value.trim();
+      if (v.length < 4) { ta.focus(); toast("하고 싶은 일을 한 줄로 적어 주세요"); return; }
+      state.prefill = v; state.autorun = true;
+      location.hash = "#/request";
+    });
+
+    return () => { removeEventListener("scroll", onScroll); removeEventListener("resize", onResize); };
+  }
+});
+
+/* 강원이어라 앱 화면 조각 (실제 앱의 색·탭 구성을 따라 그림) */
+const APP_URL = "https://gangwonieora.vercel.app/";
+const TAB_ICONS = [
+  '<path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/>',
+  '<path d="M5 21V5h9v16M14 9h5v12M8 8h3M8 12h3M8 16h3M3 21h18"/>',
+  '<path d="M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5"/>',
+  '<path d="M4 13l2-8h12l2 8v6H4zM4 13h5l1 2h4l1-2h5"/>'
+];
+const appBar = (title, login) => `<div class="ap-bar"><span class="ap-logo">이어</span><b>${title}</b>${login ? '<span class="ap-login">Google 로그인</span>' : ""}</div>`;
+const tabBar = on => `<div class="ap-tabs">${["공실 지도", "AI 진단", "AI 제안서", "매칭함"].map((t, i) => `<span class="${i === on ? "on" : ""}"><svg viewBox="0 0 24 24">${TAB_ICONS[i]}</svg>${t}</span>`).join("")}</div>`;
+const appMap = pins => `<svg viewBox="0 0 260 200" preserveAspectRatio="xMidYMid slice">
+    <rect width="260" height="200" fill="#eceee8"/>
+    <g fill="#e1e5dc"><rect x="14" y="70" width="34" height="44" rx="4"/><rect x="186" y="66" width="44" height="30" rx="4"/><rect x="96" y="160" width="38" height="28" rx="4"/><rect x="190" y="118" width="30" height="26" rx="4"/></g>
+    <circle cx="214" cy="176" r="14" fill="#d6e8c8"/>
+    <g stroke="#fff" fill="none" stroke-linecap="round"><path d="M-10 58 L270 38" stroke-width="8"/><path d="M-10 142 L270 162" stroke-width="8"/><path d="M62 -10 L88 210" stroke-width="7"/><path d="M172 -10 L152 210" stroke-width="7"/><path d="M0 100 L260 94" stroke-width="3"/><path d="M122 0 L118 200" stroke-width="3"/></g>
+  </svg>${pins.map(([b, t, x, y, sel], i) => `<span class="ap-pin${sel ? " sel" : ""}" data-pin="${i}" style="left:${x}%;top:${y}%"><i>${b}</i>${t}</span>`).join("")}`;
+
+/* ---------------- 스크롤 스토리 (토스식: 화면이 멈춘 채 스크롤에 따라 휴대폰 화면이 진행) ---------------- */
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const seg = (p, a, b) => clamp01((p - a) / (b - a));         // p가 a~b 구간에서 0→1
+function makeStory(el) {
+  const wrap = $(".phone-wrap", el), sticky = $(".story-sticky", el), copy = $(".story-copy", el);
+  const steps = $$(".story-steps li", el), scrs = $$(".scr", el);
+  const kind = el.dataset.story;
+  const last = { step: -1, scr: -1 };
+  const fit = () => {
+    const narrow = innerWidth <= 960;
+    const avail = sticky.clientHeight - (narrow ? copy.offsetHeight + 60 : 40);
+    const ps = Math.max(0.55, Math.min(1, avail / 640));
+    wrap.style.setProperty("--ps", ps.toFixed(3));
+  };
+  const setStep = i => { if (i === last.step) return; last.step = i; steps.forEach((li, k) => li.classList.toggle("on", k === i)); if (innerWidth <= 960) fit(); };
+  const setScr = i => { if (i === last.scr) return; last.scr = i; scrs.forEach((s, k) => { s.classList.toggle("on", k === i); s.classList.toggle("past", k < i); }); };
+  const S = i => scrs[i];
+  const tog = (node, cls, on) => node && node.classList.toggle(cls, on);
+  const typeInto = (node, text, k) => { const n = Math.round(text.length * k); if (node && node.textContent.length !== n) node.textContent = text.slice(0, n); };
+
+  /* 청년: 지도에서 고르기 → 기획 의도 입력 → AI 작성 → 제안서 → 매칭함 수락 */
+  const intent = "명동 1층에서 2주 동안 수제 디저트 팝업을 열고 싶어요. 강원대·한림대 학생 대상으로 SNS 홍보할 예정이에요.";
+  const how = p => {
+    setStep(p < 0.28 ? 0 : p < 0.74 ? 1 : 2);
+    setScr(p < 0.28 ? 0 : p < 0.48 ? 1 : p < 0.58 ? 2 : p < 0.74 ? 3 : 4);
+    $$(".ap-pin", S(0)).forEach((pin, k) => tog(pin, "on", p > 0.03 + k * 0.025));
+    const chips = $$(".ap-chips span", S(0));
+    tog(chips[0], "on", p <= 0.13); tog(chips[2], "on", p > 0.13);
+    tog($(".ap-sheet", S(0)), "on", p > 0.17);
+    tog($(".ap-sheet .ap-btn", S(0)), "press", p > 0.24);
+    typeInto($(".ph-type", S(1)), intent, seg(p, 0.31, 0.44));
+    tog($(".ap-btn", S(1)), "press", p > 0.46);
+    $$(".ld", S(2)).forEach((d, k) => { const a = 0.49 + k * 0.022; tog(d, "on", p > a && p <= a + 0.022); tog(d, "done", p > a + 0.022); });
+    $$(".ps", S(3)).forEach((s, k) => tog(s, "on", p > 0.6 + k * 0.025));
+    tog($(".ap-btn", S(3)), "press", p > 0.71);
+    tog($(".ph-notif", el), "on", p > 0.77 && p < 0.9);
+    tog($(".ap-status", S(4)), "ok", p > 0.81);
+    tog($(".ap-done", S(4)), "on", p > 0.85);
+  };
+
+  /* 건물주: 정보 입력 → AI 진단 → 지도 등록 → 받은 제안서 수락 */
+  const addr = "강원특별자치도 춘천시 조양동 명동길 21";
+  const ai = p => {
+    const i = Math.min(3, Math.floor(p * 4)), t = clamp01(p * 4 - i);
+    setStep(i); setScr(i);
+    const at = (k, a) => (i > k ? true : i < k ? false : t > a);
+    typeInto($(".ph-write", S(0)), addr, i > 0 ? 1 : seg(t, 0.05, 0.45));
+    $$(".ap-feats span", S(0)).forEach((s, k) => tog(s, "on", k < 3 && at(0, 0.5 + k * 0.1)));
+    tog($(".ap-btn", S(0)), "press", at(0, 0.88));
+    tog($(".ap-price", S(1)), "on", at(1, 0.05));
+    $$(".ap-tags span", S(1)).forEach((s, k) => tog(s, "on", at(1, 0.2 + k * 0.1)));
+    tog($(".ap-time", S(1)), "on", at(1, 0.55));
+    tog($(".ap-btn", S(1)), "press", at(1, 0.88));
+    $$(".ap-pin", S(2)).forEach((pin, k) => tog(pin, "on", k < 3 || at(2, 0.2)));
+    tog($(".ap-toast", S(2)), "on", at(2, 0.4));
+    tog($(".ap-card", S(3)), "on", at(3, 0.08));
+    tog($(".ap-actions .yes", S(3)), "press", at(3, 0.5));
+    tog($(".ap-status", S(3)), "ok", at(3, 0.6));
+  };
+
+  const render = kind === "how" ? how : ai;
+  fit();
+  return {
+    tick() {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < -200 || r.top > innerHeight + 200) return;
+      const total = el.offsetHeight - sticky.offsetHeight;
+      render(clamp01((64 - r.top) / Math.max(1, total)));
+    },
+    fit
+  };
+}
+
+/* ---------------- 스르륵 나타나기 + 숫자 올라가기 ---------------- */
+function countUp(root, instant) {
+  $$(".count", root).forEach(el => {
+    const to = +el.dataset.to, dec = +(el.dataset.dec || 0);
+    const f = v => v.toLocaleString("ko-KR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    if (instant) { el.textContent = f(to); return; }
+    const t0 = performance.now(), dur = 1100;
+    const step = now => { const k = Math.min(1, (now - t0) / dur); el.textContent = f(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+    setTimeout(() => { el.textContent = f(to); }, dur + 300);
+  });
+}
+function setupReveal() {
+  const els = $$("#main .reveal");
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window);
+  if (still) { els.forEach(e => { e.classList.add("in"); countUp(e, true); }); return () => {}; }
+  els.forEach(e => $$(".count", e).forEach(c => { c.textContent = "0"; }));
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add("in"); countUp(e.target); io.unobserve(e.target);
+  }), { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+  els.forEach(e => io.observe(e));
+  return () => io.disconnect();
+}
+
+/* 홈 섹션 = 건물 층. 층마다 보여줄 숫자 하나 */
+const FLOORS = [
+  { label: "시작", k: "춘천 명동 상가 공실률", v: "27.0", u: "%", s: "중대형 · 2026년 2분기" },
+  { label: "왜 필요한가", k: "수도권으로 떠난 강원 20대", v: "11,916", u: "명", s: "2023~2025 누적" },
+  { label: "청년 이용법", k: "청년이 원하는 지원", v: "54.5", u: "%", s: "공간 지원이 창업 의향을 높인다" },
+  { label: "건물주 이용법", k: "강원이어라 AI가 돕는 일", v: "4", u: "가지", s: "진단 · 제안서 · 홍보 · 리포트" },
+  { label: "공간", k: "지금 빌릴 수 있는 공간", v: String(SPACES.length), u: "곳", s: "명동 일대 · 시연용 예시" },
+  { label: "앱으로", k: "지금 앱에서 쓸 수 있는 기능", v: "4", u: "가지", s: "공간 찾기 · AI 진단 · 한 줄 요청 · 공간 등록" }
+];
+
+pages.spaces = () => {
+  const FILTERS = [["all", "전체"], ["f1", "1층"], ["f2", "2층 이상"], ["small", "10평 이하"], ["big", "15평 이상"], ["short", "하루부터"], ["long", "4주 가능"]];
+  return {
+    html: `<div class="container">
+      <div class="page-head">
+        <h1 class="title-lg">공간 찾기</h1>
+        <p class="sub">춘천 명동 일대에서 지금 빌릴 수 있는 공간이에요.</p>
+      </div>
+      <div class="notice"><span aria-hidden="true">ℹ️</span><span><b>시연용 예시 매물</b>이에요. 파란 가격표는 건물주가 등록한 공간, 점선 동그라미는 공공데이터로 찾은 공실 후보(대여 불가)예요. 지도는 실제 축척이 아닌 개념도예요.</span></div>
+      <div class="filters" style="margin-top:18px" role="group" aria-label="필터">${FILTERS.map(([k, l]) => `<button class="chip${state.filter === k ? " on" : ""}" data-f="${k}" aria-pressed="${state.filter === k}">${l}</button>`).join("")}</div>
+      <div class="finder" style="margin-bottom:96px">
+        <div class="finder-list" id="list"></div>
+        <div class="map-wrap" id="map"></div>
+      </div>
+    </div>`,
+    mount() {
+      const test = {
+        all: () => true, f1: s => s.floor === 1, f2: s => s.floor >= 2, small: s => s.size <= 10,
+        big: s => s.size >= 15, short: s => s.minDays === 1, long: s => s.maxDays >= 28
+      };
+      const draw = () => {
+        const list = SPACES.filter(test[state.filter]);
+        $("#list").innerHTML = list.length ? list.map(sp => `
+          <button class="list-item${state.selected === sp.id ? " on" : ""}" data-id="${sp.id}">
+            <span class="thumb">${storefront(sp)}</span>
+            <span style="display:grid;gap:4px;align-content:center">
+              <h3>${esc(sp.name)}</h3>
+              <span class="meta">${sp.floor}층 · ${sp.size}평 · ${dayText(sp.minDays)}~${dayText(sp.maxDays)}</span>
+              <span class="price">일 ${won(sp.price)}<small>AI 추천가</small></span>
+            </span>
+          </button>`).join("") : `<p class="empty">조건에 맞는 공간이 없어요</p>`;
+        $("#map").innerHTML = mapSVG(list) + `<div class="map-legend"><span><i></i>대여 가능</span><span><i class="cand"></i>공실 후보</span></div>`;
+      };
+      draw();
+      $(".filters").addEventListener("click", e => {
+        const b = e.target.closest("[data-f]");
+        if (!b) return;
+        state.filter = b.dataset.f;
+        $$(".filters .chip").forEach(c => { const on = c === b; c.classList.toggle("on", on); c.setAttribute("aria-pressed", on); });
+        draw();
+      });
+      $("#list").addEventListener("click", e => {
+        const b = e.target.closest("[data-id]");
+        if (!b) return;
+        const id = +b.dataset.id;
+        if (state.selected === id) { location.hash = `#/space/${id}`; return; }
+        state.selected = id; draw();
+      });
+      const pick = e => {
+        const p = e.target.closest(".pin");
+        if (!p) return;
+        state.selected = +p.dataset.id; draw();
+        const item = $(`#list [data-id="${state.selected}"]`);
+        if (item) item.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      };
+      $("#map").addEventListener("click", pick);
+      $("#map").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(e); } });
+    }
+  };
+};
+
+pages.space = id => {
+  const sp = SPACES.find(s => s.id === +id);
+  if (!sp) return pages.notfound();
+  const total = NEARBY.reduce((a, b) => a + b[1], 0);
+  return {
+    html: `<div class="container">
+      <a class="back" href="#/spaces">‹ 공간 목록</a>
+      <div class="detail fade-in">
+        <div style="display:grid;gap:28px">
+          <div>
+            <div class="detail-hero">${storefront(sp)}</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:20px;flex-wrap:wrap"><span class="tag blue">건물주 등록</span><span class="demo-badge">시연용 예시</span></div>
+            <h1 class="title-lg" style="margin-top:10px">${esc(sp.name)}</h1>
+            <p class="lead" style="margin-top:8px">${esc(sp.note)}</p>
+            <dl class="spec">
+              <div><dt>층</dt><dd>${sp.floor}층</dd></div>
+              <div><dt>면적</dt><dd>${sp.size}평 (${(sp.size * 3.3058).toFixed(1)}㎡)</dd></div>
+              <div><dt>대여 기간</dt><dd>${dayText(sp.minDays)}~${dayText(sp.maxDays)}</dd></div>
+              <div><dt>위치</dt><dd>${sp.area}</dd></div>
+            </dl>
+            <div class="tags" style="display:flex;gap:6px;margin-top:14px;flex-wrap:wrap">${sp.feats.map(f => `<span class="tag">${f}</span>`).join("")}</div>
+          </div>
+          <div class="box">
+            <h3>이 공간에 어울리는 업종 <span class="ai-mark">✦ AI 진단</span></h3>
+            <div class="fit">${sp.fit.map(([n, v]) => `<div class="fit-row"><span>${n}</span><span class="track"><i style="width:${v}%"></i></span><b>${v}</b></div>`).join("")}</div>
+            <p class="muted">층수·면적·통창 여부와 주변 업종 구성을 바탕으로 계산한 예시 점수예요.</p>
+          </div>
+          <div class="box">
+            <h3>주변 상권</h3>
+            <p class="sub">명동 일대(조양동·운교동)에서 영업 중인 상가 762곳 중 주요 업종</p>
+            <div class="nearby">${NEARBY.map(([n, v]) => `<div><b>${v}</b><span>${n}</span></div>`).join("")}</div>
+            <p class="sub">음식점·소매가 ${Math.round((NEARBY[0][1] + NEARBY[1][1]) / 762 * 100)}%로 많고, 교육·예술 업종은 ${total - NEARBY[0][1] - NEARBY[1][1]}곳뿐이라 클래스·전시는 경쟁이 적어요.</p>
+            <p class="muted"><span class="demo-badge" style="margin-right:6px">상권 분석 예시 데이터</span>실제 상가업소 원자료(소상공인시장진흥공단 상가정보)와 대조 필요 · 명동 중대형 상가 공실률 27.0% (한국부동산원, 2026년 2분기, 상가 유형 추정)</p>
+          </div>
+        </div>
+        <aside class="side">
+          <div class="card">
+            <span class="sub">AI 추천 하루 대여료</span>
+            <span class="big">${won(sp.price)}<small>/ 일</small></span>
+            <div class="kv">
+              <div><span>1주 빌리면</span><b>${sp.price[0] * 7}~${sp.price[1] * 7}만원</b></div>
+              <div><span>원상복구 보증금</span><b>10~20만원</b></div>
+              <div><span>최소 대여</span><b>${dayText(sp.minDays)}</b></div>
+            </div>
+            <a class="btn btn-primary btn-block" href="#/request" data-prefill="${sp.id}">이 공간으로 요청서 쓰기</a>
+            <button class="btn btn-grey btn-block" id="save">관심 공간에 담기</button>
+          </div>
+          <p class="muted" style="padding:0 6px">대여료는 주변 시세와 공실 기간을 반영한 시연용 예시예요.</p>
+        </aside>
+      </div>
+    </div>`,
+    mount() {
+      $("#save").addEventListener("click", () => toast("관심 공간에 담았어요"));
+      $("[data-prefill]").addEventListener("click", () => {
+        state.prefill = `2주간 ${sp.area} ${sp.size}평, ${USE_LABEL[sp.uses[0]] || sp.uses[0]}`;
+      });
+    }
+  };
+};
+
+function parseReq(t) {
+  const sizeM = t.match(/(\d+)\s*평/);
+  const wM = t.match(/(\d+)\s*주/);
+  const dM = t.match(/(\d+)\s*일/);
+  let days = null;
+  if (wM) days = +wM[1] * 7;
+  else if (dM) days = +dM[1];
+  else if (/하루|원데이|주말/.test(t)) days = 1;
+  const hit = USE_WORDS.find(([k]) => t.includes(k));
+  return { size: sizeM ? +sizeM[1] : null, days, use: hit ? hit[1] : null, text: t };
+}
+function rank(q) {
+  return SPACES.map(sp => {
+    let s = 62;
+    if (q.use && sp.uses.includes(q.use)) s += 18 - sp.uses.indexOf(q.use) * 4;
+    if (q.size) s += Math.max(0, 14 - Math.abs(q.size - sp.size) * 2);
+    else s += 6;
+    if (q.days) s += (q.days >= sp.minDays && q.days <= sp.maxDays) ? 6 : -14;
+    return { sp, score: Math.max(41, Math.min(97, s)) };
+  }).sort((a, b) => b.score - a.score).slice(0, 3);
+}
+function reason(q, sp) {
+  const r = [];
+  if (q.use && sp.uses.includes(q.use)) r.push(`${USE_LABEL[q.use]}에 맞는 구조`);
+  if (q.size) r.push(Math.abs(q.size - sp.size) <= 3 ? "원하는 크기와 비슷" : `${sp.size}평`);
+  if (q.days) r.push(q.days >= sp.minDays && q.days <= sp.maxDays ? `${dayText(q.days)} 대여 가능` : `최소 ${dayText(sp.minDays)}부터`);
+  r.push(sp.feats[0]);
+  return r.slice(0, 3).join(" · ");
+}
+function proposal(q, sp) {
+  const use = USE_LABEL[q.use] || "팝업";
+  const days = q.days || 14;
+  const fee = Math.round((sp.price[0] + sp.price[1]) / 2 * 10) / 10;
+  return `안녕하세요, ${sp.name} 건물주님.
+강원이어라를 통해 ${dayText(days)} 동안 공간을 빌려 ${use}${eulReul(use)} 열고 싶은 청년 창업팀입니다.
+
+■ 제안 내용
+· 기간: ${dayText(days)} (평일 11시~20시, 주말 12시~21시)
+· 용도: ${use} — "${q.text}"
+· 대여료: 하루 ${fee}만원, 총 ${Math.round(fee * days)}만원 (강원이어라 추천가 기준)
+
+■ 이 공간을 고른 이유
+${sp.note} 주변에 음식점·소매가 많아 지나가는 사람이 많고, 같은 업종 경쟁은 적습니다.
+
+■ 약속드리는 것
+· 원상복구 보증금을 강원이어라에 맡기고, 입점 전후 사진으로 상태를 확인합니다.
+· 영업신고 등 필요한 절차는 오픈 전에 마칩니다.
+· 운영이 끝나면 방문자 수와 반응을 정리한 리포트를 함께 보내드립니다.
+
+비어 있는 기간 동안 공간을 알리는 기회가 되도록 정성껏 운영하겠습니다.`;
+}
+
+pages.request = () => ({
+  html: `<div class="container">
+    <div class="req-wrap">
+      <div style="display:grid;gap:10px">
+        <span class="ai-mark" style="justify-self:start">✦ AI 한 줄 요청</span>
+        <h1 class="title-lg">어떤 공간이 필요하세요?</h1>
+        <p class="sub">기간, 크기, 하고 싶은 일을 한 줄로 적어 주세요.</p>
+      </div>
+      <form class="req-input" id="reqForm">
+        <label for="reqText" class="muted">요청 내용</label>
+        <textarea id="reqText" rows="2" placeholder="예: 2주간 명동에서 15평, 수제 디저트 팝업" maxlength="120"></textarea>
+        <div class="req-bottom">
+          <div class="parsed" id="parsed"></div>
+          <button class="btn btn-primary" id="go" type="submit" disabled>AI에게 맡기기</button>
+        </div>
+      </form>
+      <div class="examples" aria-label="예시">${EXAMPLES.map(e => `<button class="chip" type="button" data-ex="${esc(e)}">${esc(e)}</button>`).join("")}</div>
+      <div id="result" aria-live="polite"></div>
+    </div>
+  </div>`,
+  mount() {
+    const ta = $("#reqText"), go = $("#go");
+    const showParsed = () => {
+      const q = parseReq(ta.value);
+      const bits = [];
+      if (q.days) bits.push(`⏱ ${dayText(q.days)}`);
+      if (q.size) bits.push(`📐 ${q.size}평`);
+      if (q.use) bits.push(`🏷 ${USE_LABEL[q.use]}`);
+      $("#parsed").innerHTML = bits.map(b => `<span class="tag blue">${b}</span>`).join("");
+      go.disabled = ta.value.trim().length < 4;
+    };
+    ta.addEventListener("input", showParsed);
+    ta.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!go.disabled) submitForm($("#reqForm")); } });
+    $(".examples").addEventListener("click", e => {
+      const b = e.target.closest("[data-ex]");
+      if (!b) return;
+      ta.value = b.dataset.ex; showParsed(); ta.focus();
+    });
+    if (state.prefill) { ta.value = state.prefill; state.prefill = null; showParsed(); }
+    if (state.autorun) { state.autorun = false; setTimeout(() => submitForm($("#reqForm")), 350); }
+    $("#reqForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const q = parseReq(ta.value.trim());
+      state.req = q;
+      go.disabled = true;
+      const res = $("#result");
+      const steps = ["요청 내용 이해하기", "주변 상권 데이터 살펴보기", "공간 조건 비교하기", "적정 대여료 계산하기"];
+      res.innerHTML = `<div class="loading">${steps.map((s, i) => `<div class="load-step" data-s="${i}"><span class="dot"></span>${s}</div>`).join("")}</div>`;
+      for (let i = 0; i < steps.length; i++) {
+        const el = $(`[data-s="${i}"]`, res);
+        el.classList.add("on");
+        await sleep(520);
+        el.classList.remove("on"); el.classList.add("done");
+      }
+      await sleep(200);
+      const top = rank(q);
+      const best = top[0].sp;
+      res.innerHTML = `
+        <div class="fade-in" style="display:grid;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+            <h2 class="title-md">이런 공간을 추천해요</h2><span class="demo-badge">시연용 예시 결과</span>
+          </div>
+          ${top.map((t, i) => `
+            <a class="match${i === 0 ? " best" : ""}" href="#/space/${t.sp.id}">
+              <span class="thumb">${storefront(t.sp)}</span>
+              <span style="display:grid;gap:2px">
+                <h3>${i === 0 ? "👑 " : ""}${esc(t.sp.name)}</h3>
+                <p>${esc(reason(q, t.sp))}</p>
+                <p style="color:var(--g900);font-weight:700">일 ${won(t.sp.price)}</p>
+              </span>
+              <span class="score"><b>${t.score}%</b><span>잘 맞아요</span></span>
+            </a>`).join("")}
+          <div class="proposal" style="margin-top:12px">
+            <div class="proposal-head"><h3 style="font-size:19px">건물주에게 보낼 제안서</h3><span class="ai-mark">✦ AI 작성</span></div>
+            <div class="proposal-body caret" id="prop"></div>
+            <div class="actions" id="propActions" hidden>
+              <button class="btn btn-primary" id="send" type="button">건물주에게 보내기</button>
+              <button class="btn btn-grey" id="copy" type="button">복사하기</button>
+              <a class="btn btn-soft" href="#/kit">홍보 키트 미리보기 <span class="tag yellow">예정</span></a>
+            </div>
+          </div>
+        </div>`;
+      const text = proposal(q, best);
+      const out = $("#prop");
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce) out.textContent = text;
+      else for (let i = 0; i < text.length; i += 3) {
+        if (!document.body.contains(out)) return;
+        out.textContent = text.slice(0, i + 3);
+        await sleep(12);
+      }
+      out.classList.remove("caret");
+      $("#propActions").hidden = false;
+      $("#copy").addEventListener("click", () => copyText(text));
+      $("#send").addEventListener("click", () => toast("제안서를 보냈어요 (시연용이라 실제로 전송되지는 않아요)"));
+      go.disabled = false;
+    });
+  }
+});
+
+pages.kit = () => {
+  const q = state.req || parseReq(EXAMPLES[0]);
+  const use = USE_LABEL[q.use] || "팝업";
+  const days = q.days || 14;
+  const title = q.use === "디저트" ? "명동 수제 디저트 팝업" : `명동 ${use}`;
+  const copies = [
+    `🧁 ${title}, 딱 ${dayText(days)}만 열어요!\n춘천 명동 한복판, 비어 있던 공간에 불이 켜졌어요. 오픈 첫 주말 방문 인증하면 작은 선물 드려요.\n#춘천팝업 #명동 #강원이어라`,
+    `춘천 명동에서 만나는 ${use} ✨\n청년 창업팀이 ${dayText(days)} 동안 준비한 공간이에요. 지나가다 들러 주세요!\n#춘천 #팝업스토어 #청년창업`,
+    `[${title}]\n기간: ${dayText(days)} · 장소: 춘천 명동 일대\n금·토요일 오후가 가장 붐빌 것으로 예상돼요. 여유 있게 오시려면 평일 낮을 추천해요.`
+  ];
+  const week = [["월", 38], ["화", 34], ["수", 42], ["목", 50], ["금", 78], ["토", 100], ["일", 72]];
+  return {
+    html: `<div class="container">
+      <div class="page-head">
+        <span class="ai-mark" style="justify-self:start">✦ AI 홍보 키트</span>
+        <h1 class="title-lg">홍보 준비도 AI가 도와요</h1>
+        <p class="sub">${state.req ? "방금 요청한 내용" : "예시 요청"}(“${esc(q.text)}”)으로 만들었어요.</p>
+      </div>
+      <div class="kit-grid">
+        <div style="display:grid;gap:14px">
+          <div class="poster">
+            <span class="pk">강원이어라 POP-UP</span>
+            ${heroBuilding()}
+            <div style="display:grid;gap:10px">
+              <h3>${esc(title)}</h3>
+              <span class="when">${dayText(days)} 동안 · 춘천 명동</span>
+            </div>
+          </div>
+          <button class="btn btn-grey" id="dl">포스터 저장하기</button>
+        </div>
+        <div style="display:grid;gap:28px">
+          <div style="display:grid;gap:12px">
+            <h2 class="title-md">SNS 문구</h2>
+            <div class="copy-list">${copies.map((c, i) => `<div class="copy-item"><p>${esc(c)}</p><div class="row"><span class="muted">문구 ${i + 1}</span><button class="btn btn-sm btn-soft" data-copy="${i}">복사</button></div></div>`).join("")}</div>
+          </div>
+          <div class="box">
+            <h3>요일별 예상 방문 <span class="ai-mark">✦ 수요 예측</span></h3>
+            <p class="sub">토요일이 가장 붐비고, 금요일 저녁부터 사람이 늘어요.</p>
+            <div class="week" role="img" aria-label="요일별 예상 방문 지수: 토요일 100, 금요일 78, 일요일 72, 평일 34~50">${week.map(([d, v]) => `<div><i class="${v >= 72 ? "hi" : ""}" style="height:calc(${v}% - ${v * 0.24}px)"></i>${d}</div>`).join("")}</div>
+            <p class="muted">토요일을 100으로 둔 예시 지수예요. 실제 서비스에서는 네이버 데이터랩 검색 추이와 지역 행사 일정을 함께 반영할 예정이에요.</p>
+          </div>
+        </div>
+      </div>
+    </div>`,
+    mount() {
+      $$(".poster .win").forEach((w, i) => { if (i !== 1 && i !== 6) w.classList.add("lit"); });
+      $$("[data-copy]").forEach(b => b.addEventListener("click", () => copyText(copies[+b.dataset.copy])));
+      $("#dl").addEventListener("click", () => toast("시연용이라 저장 기능은 준비 중이에요"));
+    }
+  };
+};
+
+pages.report = () => ({
+  html: `<div class="container">
+    <div class="page-head">
+      <span class="ai-mark" style="justify-self:start">✦ AI 성과 리포트</span>
+      <h1 class="title-lg">명동 수제 디저트 팝업 · 2주 결과</h1>
+      <p class="sub">명동길 2층 통창 상가 · 14일 운영 <span class="demo-badge" style="margin-left:6px">예시 리포트</span></p>
+    </div>
+    <div class="report">
+      <div class="kpi4">
+        <div><span>방문</span><b>1,240명</b><em>첫 주보다 둘째 주 +18%</em></div>
+        <div><span>매출</span><b>486만원</b><em>객단가 1만 2천원</em></div>
+        <div><span>SNS 언급</span><b>132건</b><em>오픈 주말에 절반</em></div>
+        <div><span>재방문</span><b>21%</b><em>쿠폰 사용 기준</em></div>
+      </div>
+      <div class="report-two">
+        <div class="box">
+          <h3>요일별 방문</h3>
+          <div class="hbars">${[["토요일", 286], ["금요일", 214], ["일요일", 198], ["목요일", 142], ["수요일", 131], ["화요일", 124], ["월요일", 145]].sort((a, b) => b[1] - a[1]).map(([d, v], i) => `<div class="hbar${i === 0 ? " hl" : ""}"><span>${d}</span><span class="track"><i style="width:${v / 286 * 100}%"></i></span><b>${v}명</b></div>`).join("")}</div>
+          <p class="muted">2주 합계를 요일별로 묶은 값</p>
+        </div>
+        <div class="box">
+          <h3>AI 한 줄 정리</h3>
+          <p style="font-size:16px;color:var(--g800);line-height:1.75">토요일 오후에 방문의 23%가 몰렸어요. 다음에는 <b>금~일 3일만 빌리면</b> 대여료를 줄이면서 방문은 비슷하게 유지할 수 있어요. 2층이지만 통창 쪽 디스플레이 덕분에 길에서 보고 들어온 손님이 많았어요.</p>
+          <div class="actions">
+            <button class="btn btn-primary" id="share" type="button">건물주에게 공유하기</button>
+            <a class="btn btn-grey" href="#/request">다음 도전 요청하기</a>
+          </div>
+        </div>
+      </div>
+      <p class="muted">이 리포트는 화면 구성을 보여주기 위한 예시 수치예요.</p>
+    </div>
+  </div>`,
+  mount() { $("#share").addEventListener("click", () => toast("리포트를 공유했어요 (시연용)")); }
+});
+
+pages.host = () => ({
+  html: `<div class="container">
+    <div class="host-wrap">
+      <div>
+        <p class="eyebrow">건물주님께</p>
+        <h1 class="title-lg">다음 임차인을 기다리는 동안<br>공간을 빌려주세요</h1>
+        <p class="lead" style="margin-top:14px">강원이어라는 직접 등록한 공간만 청년에게 보여 드려요. 대여 기간과 조건은 건물주님이 정해요.</p>
+        <div class="benefits">
+          <div class="benefit"><span class="ico" aria-hidden="true">💡</span><div><h3>비어 있는 기간에도 대여료</h3><p>하루 단위로 빌려주고, 정식 임대가 잡히면 언제든 등록을 멈출 수 있어요.</p></div></div>
+          <div class="benefit"><span class="ico" aria-hidden="true">🛡️</span><div><h3>원상복구 보증금</h3><p>입점 전후 사진을 비교하고, 보증금은 강원이어라가 보관해요.</p></div></div>
+          <div class="benefit"><span class="ico" aria-hidden="true">📈</span><div><h3>공간 홍보 효과</h3><p>팝업이 열리는 동안 사람들이 공간을 직접 봐요. 운영 결과를 정리한 성과 리포트도 준비하고 있어요.</p></div></div>
+        </div>
+      </div>
+      <form class="card form" id="hostForm" novalidate>
+        <h2 class="title-md" style="font-size:21px">공간 등록하기</h2>
+        <div class="field"><label for="hAddr">공간 위치</label><input id="hAddr" placeholder="예: 춘천시 명동길 ○○" autocomplete="off"></div>
+        <div class="two-col">
+          <div class="field"><label for="hFloor">층</label><select id="hFloor"><option>1층</option><option selected>2층</option><option>3층</option><option>4층 이상</option></select></div>
+          <div class="field"><label for="hSize">면적 (평)</label><input id="hSize" inputmode="numeric" placeholder="15"></div>
+        </div>
+        <div class="field"><span class="lbl" id="segLbl">빌려줄 수 있는 기간</span><div class="seg" role="group" aria-labelledby="segLbl"><button type="button" data-v="1">하루~1주</button><button type="button" class="on" data-v="2">1~2주</button><button type="button" data-v="3">최대 4주</button></div></div>
+        <div class="field"><label for="hTel">연락처</label><input id="hTel" inputmode="tel" placeholder="010-0000-0000" autocomplete="off"></div>
+        <button class="btn btn-primary btn-block" type="submit">AI 진단 받고 등록하기</button>
+        <p class="muted">시연용 양식이라 입력한 내용은 저장되거나 전송되지 않아요.</p>
+      </form>
+    </div>
+  </div>`,
+  mount() {
+    $(".seg").addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      $$(".seg button").forEach(x => x.classList.toggle("on", x === b));
+    });
+    $("#hostForm").addEventListener("submit", e => {
+      e.preventDefault();
+      if (!$("#hAddr").value.trim()) { $("#hAddr").focus(); toast("공간 위치를 적어 주세요"); return; }
+      toast("등록 요청을 받았어요. AI 진단 결과를 곧 알려드릴게요 (시연용)");
+      e.target.reset();
+    });
+  }
+});
+
+pages.data = () => {
+  const bars = (rows, unit) => {
+    const max = Math.max(...rows.map(r => r[1]));
+    return `<div class="hbars">${rows.map(([n, v, hl]) => `<div class="hbar${hl ? " hl" : ""}"><span>${n}</span><span class="track"><i style="width:${v / max * 100}%"></i></span><b>${v}${unit}</b></div>`).join("")}</div>`;
+  };
+  // 강원 vs 전국 짝 막대
+  const pairs = (rows, max) => `<div class="legend"><span class="gw">강원</span><span>전국</span></div>
+    <div class="pbars">${rows.map(([n, g, k, note]) => `<div class="pbar"><span>${n}${note ? `<br><small class="muted">${note}</small>` : ""}</span><div class="two">
+      <div class="row gw"><i style="width:${g / max * 100}%"></i><b>${g}%</b></div>
+      <div class="row"><i style="width:${k / max * 100}%"></i><b>${k}%</b></div>
+      <span class="gap">+${(g - k).toFixed(1)}%p</span></div></div>`).join("")}</div>`;
+  // 0을 기준으로 한 증감 막대 (−10 ~ +40 같은 눈금)
+  const diverge = groups => `<div class="dbars">${groups.map(([g, rows]) => `<p class="dbar-group">${g}</p>${rows.map(([n, v]) => {
+    const cls = v < 0 ? "neg" : "pos";
+    return `<div class="dbar"><span>${n}</span><span class="axis"><i class="${cls}" style="width:${Math.abs(v) * 2}%"></i></span><b class="${cls}">${v > 0 ? "+" : ""}${v}%</b></div>`;
+  }).join("")}`).join("")}</div>`;
+  const myeong = [["21.1Q", 18.5], null, ["24.3Q", 19.7], ["24.4Q", 19.7, "해석"], ["25.1Q", 22.0], ["25.2Q", 26.0], ["25.3Q", 23.6], ["26.1Q", 25.1], ["26.2Q", 27.0, "추정"]];
+  const cols = `<div class="cols" role="img" aria-label="춘천 명동 중대형 상가 공실률: 2021년 1분기 18.5%에서 2026년 2분기 27.0%">${myeong.map((d, i) => d ? `<div class="${i === myeong.length - 1 ? "last" : ""}${d[2] ? " est" : ""}">${d[2] ? `<em>${d[2]}</em>` : ""}${d[1].toFixed(1)}<i style="height:${d[1] / 30 * 100}%"></i></div>` : `<div class="brk" aria-hidden="true">⋯</div>`).join("")}</div>
+    <div class="cols-x" aria-hidden="true">${myeong.map(d => d ? `<span>${d[0]}</span>` : `<span class="brk"></span>`).join("")}</div>
+    <p class="cols-legend"><i></i>빗금 = 확정되지 않은 값 (해석: ‘춘천’으로만 보도 · 추정: 상가 유형 미기재)</p>`;
+
+  const ct = (id, name) => `<button type="button" class="ctag" data-chap="${id}">${name}</button>`;
+  const CHAPTERS = [
+    ["c1", "상가"], ["c2", "원도심"], ["c3", "건물주"], ["c4", "청년"], ["c5", "가능성"], ["c6", "정책"], ["c7", "강원이어라의 답"], ["c8", "분석 방법"]
+  ];
+  const head = (id, n, eyebrow, title, lead) => `<div class="dchap-head reveal"><p class="eyebrow">${n} · ${eyebrow}</p><h2 class="title-lg">${title}</h2>${lead ? `<p class="lead">${lead}</p>` : ""}</div>`;
+
+  return {
+    html: `<div class="container">
+      <div class="page-head">
+        <p class="eyebrow" style="margin:0">왜 강원이어라인가</p>
+        <h1 class="title-lg">상가는 비고, 청년은 떠나요.<br>둘을 이으면 원도심이 다시 켜져요</h1>
+        <p class="sub">공개 통계와 보도 자료로 강원 원도심의 문제와 가능성을 정리했어요. 출처는 카드마다 아래에 적었고, 자료를 다룬 방법과 한계는 <button type="button" data-chap="c8" style="color:var(--blue);font-weight:600;font-size:inherit;padding:0">08 분석 방법</button>에 정리했어요.</p>
+        <div class="dkpi">
+          <div class="k hl reveal"><span class="who">상가</span><span class="n">27.0<small>%</small></span><p>춘천 명동 중대형 상가 공실률</p></div>
+          <div class="k reveal" style="--d:.08s"><span class="who">건물주</span><span class="n">0.15<small>%</small></span><p>강원 중대형 상가 분기 수익률 (전국 0.78%)</p></div>
+          <div class="k reveal" style="--d:.16s"><span class="who">청년</span><span class="n">11,916<small>명</small></span><p>3년간 강원→수도권 20대 순유출</p></div>
+          <div class="k hl reveal" style="--d:.24s"><span class="who">가능성</span><span class="n">2<small>배</small></span><p>창업을 해 본 청년의 창업 의향 (43.3% vs 21.6%)</p></div>
+        </div>
+        <p class="dflow reveal" style="--d:.3s">빈 상가 <i>→</i> 손해 보는 건물주 <i>→</i> 떠나는 청년 <i>→</i> 그래도 <b>해 본 청년은 의향이 2배</b> <i>→</i> <b>짧게 빌려 써 보는 구조</b></p>
+      </div>
+
+      <nav class="dnav" aria-label="자료 목차">${CHAPTERS.map(([id, t], i) => `<button type="button" class="chip" data-chap="${id}">${String(i + 1).padStart(2, "0")} ${t}</button>`).join("")}</nav>
+
+      <section class="dchap" id="c1">
+        ${head("c1", "01", "상가 공실", "강원 상가는 전국보다 더 비어 있어요", "확인된 상가 유형 모두에서 강원 공실률이 전국을 웃돌고, 일반상가는 강원·전국 모두 통계 작성 이래 최고예요. 일부 원도심 상권은 특히 높아요.")}
+        <div class="data-grid">
+          <div class="data-card reveal">
+            <h3>확인된 유형 모두 강원이 더 높아요</h3>
+            ${pairs([["일반상가", 16.9, 13.7], ["중대형 상가", 19.3, 14.7], ["집합상가", 17.4, 11.4, "강원은 2분기 값"], ["오피스", 20.7, 8.2, "전국 3위"]], 22)}
+            <p class="src">상업용부동산 공실률 · 2026년 3분기 · 한국부동산원 (강원일보·강원도민일보 보도 인용) · 강원 소규모 상가는 값 미확인 · 집합상가 차이는 시점이 달라 참고용</p>
+            <div class="ctags">${ct("m18", "그래프 문법")}${ct("m12", "시점 맞추기")}</div>
+          </div>
+          <div class="data-card reveal" style="--d:.1s">
+            <h3>명동은 전국과의 격차가 벌어지고 있어요</h3>
+            <div class="vs"><span class="big">18.5 → 27.0<small>%</small></span></div>
+            ${cols}
+            <p class="sub">같은 기간 전국 평균은 13.2% → 14.3%. 명동과 전국의 차이는 <b>5.3%p → 12.7%p</b>로 2배 넘게 벌어졌어요.</p>
+            <p class="src">춘천 명동 중대형 상가 공실률 · 2021년 1분기 → 2026년 2분기 · 한국부동산원 (보도 인용) · 2022~2023년 값은 없음 · 2026년 2분기 값은 보도에 상가 유형이 없어 중대형으로 추정 · 2024년 4분기는 ‘춘천’으로만 보도된 값</p>
+            <div class="ctags">${ct("m12", "불완전 구간")}${ct("m15", "파생변수")}</div>
+          </div>
+          <div class="data-card wide reveal">
+            <h3>원주 중앙·일산은 전국의 약 2.6배</h3>
+            ${bars([["원주 중앙·일산", 36.8, true], ["춘천 명동", 25.1, true], ["전국 평균", 14.1]], "%")}
+            <p class="sub">세 값 모두 같은 분기(2026년 1분기)예요. 원주 중앙·일산은 보도된 공실률 상위 원도심 상권 가운데 가장 높았어요.</p>
+            <p class="src">중대형 상가 공실률 · 2026년 1분기 · 한국부동산원 (세계일보 2026.06.28 인용) · 보도된 상위 상권이며 전수 순위는 아님</p>
+            <div class="ctags">${ct("m13", "정규화")}${ct("m06", "선별 편향")}</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dchap" id="c2">
+        ${head("c2", "02", "원도심 인구", "도시 인구는 그대로인데, 원도심만 비어 가요", "춘천 전체 인구는 3년 동안 거의 변하지 않았어요. 그런데 원도심 동네 인구는 줄고, 신규 개발지 인구는 크게 늘었어요. 원주도 같은 모양이에요.")}
+        <div class="data-grid">
+          <div class="data-card reveal">
+            <h3>춘천 인구 약 3년 변화 −0.66%</h3>
+            <span class="big">286,645 → 284,762<small>명</small></span>
+            <p class="sub">2023년 값과 2026년 10월 값을 비교하면 약 1,900명 줄었어요. 도시 전체로 보면 ‘정체’에 가까워요. (2023년은 연도별 값이라 기준 월이 달라요)</p>
+            <p class="src">행정안전부 주민등록 인구통계 (2차 출처 인용)</p>
+            <div class="ctags">${ct("m13", "정규화")}</div>
+          </div>
+          <div class="data-card reveal" style="--d:.1s">
+            <h3>원도심은 줄고, 신규 개발지는 늘어요</h3>
+            ${diverge([["춘천", [["명동 일대 8개 동", -8.4], ["동내면 (신규 개발지)", 35.7]]], ["원주", [["일산동 (원도심)", -6.1], ["원동 (인접 신규 동)", 37.1]]]])}
+            <p class="src">약 3년간 주민등록 인구 증감률 · 행정안전부 주민등록 (2차 출처 인용)</p>
+            <div class="ctags">${ct("m20", "데이터 결합")}${ct("m18", "같은 눈금")}</div>
+          </div>
+        </div>
+        <p class="caveat reveal"><b>해석할 때 주의할 점</b> · 원도심 인구 감소가 공실의 원인이라고 단정하진 않아요. 공실률 상위 5개 상권을 비교했을 때 인구가 더 줄어든 곳일수록 공실률이 높은 관계는 보이지 않았어요(표본 5곳). 명동 일대 8개 동의 주민등록 인구는 3천여 명이라 상권 유동인구를 대표하지도 않아요. ${ct("m06", "선별 편향과 상관")}</p>
+      </section>
+
+      <section class="dchap" id="c3">
+        ${head("c3", "03", "건물주", "건물주 수익률도 전국보다 낮아요", "공실 문제는 청년만의 이야기가 아니에요. 강원 상가의 투자수익률은 전국에 한참 못 미치고, 건물 가치 변동분은 마이너스예요.")}
+        <div class="data-grid">
+          <div class="data-card reveal">
+            <h3>수익률은 전국의 약 5분의 1</h3>
+            <div class="vs"><span class="big">0.15<small>%</small></span><span>전국 0.78%</span></div>
+            <p class="sub">강원 중대형 상가의 분기 <b>투자수익률</b>(임대 소득 + 건물 가치 변동)이에요. 이 가운데 건물 가치 변동을 뜻하는 <b>자본수익률은 −0.57%</b>였어요. 오피스 투자수익률은 −0.34%(전국 1.47%)예요.</p>
+            <p class="src">2026년 3분기 · 한국부동산원 (강원일보 2026.11.01 등 보도 인용) · 강원 값은 보도로 확인한 잠정치로, 원자료 대조 필요</p>
+            <div class="ctags">${ct("m15", "파생변수")}</div>
+          </div>
+          <div class="data-card reveal" style="--d:.1s">
+            <h3>거래도 줄었어요</h3>
+            <div class="vs"><span class="big">약 30<small>% 감소</small></span></div>
+            <p class="sub">강원 빌딩 거래량이 전년 같은 분기보다 약 30% 줄어 3분기 129건이었어요.</p>
+            <p class="src">2026년 3분기 · 전년 동기 대비 · 부동산플래닛 (강원도민일보 2026.11.05)</p>
+          </div>
+        </div>
+        <p class="takeaway reveal">기대 효과 · 다음 임차인을 기다리는 동안의 단기 대여가 건물주에게 추가 수입원이 될 수 있어요.</p>
+      </section>
+
+      <section class="dchap" id="c4">
+        ${head("c4", "04", "청년 창업", "청년은 떠나고, 창업은 줄어요", "강원의 20대는 수도권으로 빠져나가고 있어요. 전국적으로 창업은 청년층에서 가장 크게 줄었고, 전국 조사에서 창업의 가장 큰 벽은 자금과 실패에 대한 두려움이었어요.")}
+        <div class="data-grid">
+          <div class="data-card reveal">
+            <h3>20대가 수도권으로 떠나요</h3>
+            <span class="big">11,916<small>명</small></span>
+            <p class="sub">2023~2025년 강원에서 수도권으로 순유출된 20대. 같은 기간 전 연령 합계(1,991명)보다 훨씬 많아요.</p>
+            <p class="src">강원연구원 (2026.07)</p>
+          </div>
+          <div class="data-card reveal" style="--d:.1s">
+            <h3>전국에서 청년 창업이 가장 많이 줄었어요</h3>
+            ${bars([["30세 미만", 6.6, true], ["50대", 5.6], ["40대", 4.8], ["30대", 2.8], ["60세 이상", 2.1]], "%")}
+            <p class="sub">전체 창업기업은 5년 연속 감소했고, 강원 창업기업은 31,886개(−4.5%)로 역대 최저 수준이에요.</p>
+            <p class="src">연령별 창업기업 감소율 · 2025년 · 전국 · 중소벤처기업부 · 강원 값은 국가데이터처 (강원일보 보도)</p>
+          </div>
+          <div class="data-card wide reveal">
+            <h3>크게 시작하면 위험도 커요</h3>
+            <div class="mini3">
+              <div><b>53.7%</b><span>창업 준비의 가장 큰 장애: 자금 확보</span></div>
+              <div><b>45.9%</b><span>실패에 대한 두려움</span></div>
+              <div><b>36.5%</b><span>신생기업 5년 생존율. 10곳 중 6곳은 5년 안에 문을 닫아요</span></div>
+            </div>
+            <p class="src">전국 · 중기부 창업기업실태조사(복수응답) · 국가데이터처 기업생멸행정통계 (2019년 창업 기업 기준)</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="dchap" id="c5">
+        ${head("c5", "05", "가능성", "그래도 창업의 ‘시작’ 지표는 강원이 1위예요", "강원은 신생기업 수가 늘고, 1년 생존율도 전국에서 가장 높아요. 반면 기업이 커 가는 지표는 하위권이에요.")}
+        <div class="data-grid">
+          <div class="data-card reveal">
+            <h3>강원 창업 생태계, 17개 시도 중</h3>
+            <ul class="rank-list">
+              <li><span class="rk top">1위</span><span>신생기업 증가율</span><b>+1.0%<small>전국 −1.5%</small></b></li>
+              <li><span class="rk top">1위</span><span>1년 생존율</span><b>67.6%<small>전국 63.9%</small></b></li>
+              <li><span class="rk low">최하위</span><span>신생기업 중 법인 비중</span><b>5.5%<small>전국 8.3%</small></b></li>
+              <li><span class="rk low">최하위</span><span>활동기업 1곳당 종사자</span><b>2.11명<small>전국 3.02명</small></b></li>
+              <li><span class="rk low">공동 최하위</span><span>고성장기업 비율</span><b>1.2%<small>전국 1.8%</small></b></li>
+            </ul>
+            <p class="src">국가데이터처 2025년 기업생멸행정통계(잠정) · 강원도민일보 2026.10.23 분석 · 생존율은 2024년 기준</p>
+          </div>
+          <div class="data-card reveal" style="--d:.1s">
+            <h3>해 본 청년이 창업 의향도 높아요</h3>
+            ${bars([["창업 경험 있음", 43.3, true], ["전체 평균", 27.6], ["경험 없음", 21.6]], "%")}
+            <p class="sub">청년이 꼽은 ‘창업 의향을 높이는 지원’ 중 <b>공간 지원은 54.5%</b>. 1위 자금·인력(66.6%)에 이어 네 번째로 많이 꼽혔어요.</p>
+            <p class="src">창업 의향이 ‘높다’는 미취업 청년 비율 · 2025년 · 전국 · 한국경제인협회 · 경험과 의향이 함께 나타난다는 뜻이며, 경험이 의향을 높였다는 인과는 아님</p>
+            <div class="ctags">${ct("m06", "상관과 인과")}</div>
+          </div>
+        </div>
+        <p class="takeaway reveal">창업은 시작되지만 키워 갈 기반은 약해요. 부담 없이 먼저 시험해 볼 수 있는 단계가 도움이 될 수 있어요.</p>
+      </section>
+
+      <section class="dchap" id="c6">
+        ${head("c6", "06", "정책", "정부도 같은 방향으로 움직여요", "빈 상가를 청년 창업 공간으로 바꾸는 국가 사업이 2027년부터 시작돼요. 방향은 같고, 시기는 지금이에요.")}
+        <div class="data-grid">
+          <div class="data-card policy-card reveal">
+            <h3>원도심 RE:CORE 프로젝트</h3>
+            <p style="color:var(--g800)">중기부·국토부·문체부가 비수도권 원도심의 빈 상가를 매입하거나 장기 임대해 작업실·창업공간·팝업스토어로 운영해요. 입주자 임대료와 청년 활동비도 지원해요.</p>
+            <ul class="timeline">
+              <li><b>2026.09</b><span>사업 발표 · 지역당 국비 최대 242억 원</span></li>
+              <li><b>2027</b><span>시범사업 · 권역당 1~2곳</span></li>
+              <li><b>~2029</b><span>권역당 2~3곳으로 확대 · 강원 선정 여부는 미정</span></li>
+            </ul>
+            <p class="src">뉴스핌 2026.09.08 · 이데일리 보도</p>
+          </div>
+          <div class="data-card reveal" style="--d:.1s">
+            <h3>비슷한 시도는 이미 있었어요</h3>
+            <ul class="rank-list">
+              <li><span class="rk top">2017</span><span>춘천 육림고개 청년몰 · 빈 점포 임차료·인테리어 보조</span><b></b></li>
+              <li><span class="rk top">2026</span><span>광주 동구 충장로 빈 점포 · 최대 2년 임차료·리모델링</span><b></b></li>
+              <li><span class="rk top">2026</span><span>순천 원도심 청년 실험점포</span><b></b></li>
+            </ul>
+            <p class="sub">주로 임차료·리모델링을 지원해 입점을 돕는 방식이에요. 춘천 ‘상권 르네상스’ 사업이 끝난 뒤에도 명동엔 공실이 여전해요.</p>
+            <p class="src">오마이뉴스 등 보도</p>
+          </div>
+        </div>
+        <p class="takeaway reveal">정부 사업은 매입·장기 임대 중심이고 선정까지 시간이 걸려요. 그 사이 비어 있는 기간을 민간의 단기 매칭이 채울 수 있어요.</p>
+      </section>
+
+      <section class="dchap" id="c7">
+        ${head("c7", "07", "강원이어라의 답", "그래서, 비어 있는 기간을 잇습니다", "강원이어라는 다음 임차인을 기다리는 빈 상가를 하루~4주 단위로 청년 창업자에게 연결해요. 앞에서 본 문제에 대한 서비스의 기대 효과예요. 실제 효과는 운영과 설문으로 확인할 예정이에요.")}
+        <div class="bridge">
+          <div class="bcard reveal">
+            <span class="who">청년 창업자</span>
+            <p class="pain"><b>“크게 시작하기 겁나요”</b> · 자금 장애 53.7%, 실패 두려움 45.9%</p>
+            <h3>짧게 빌려 먼저 해 봐요</h3>
+            <p>보증금과 1년 계약 없이 필요한 기간만 빌려 시장 반응을 확인해요.</p>
+            <div class="num"><s>약 2,300만 원</s> → 약 22만 원 <span class="demo-badge">팀 가정치</span></div>
+            <p class="muted">1년 정규 임대차 초기 비용 vs 단기 매칭 예시 (1일 5~8만 원) · 기간과 비용 범위가 다른 단순 비교예요</p>
+            <div class="ctags">${ct("m21", "AI 검증 · 가정치 통일")}</div>
+          </div>
+          <div class="bcard reveal" style="--d:.1s">
+            <span class="who">건물주</span>
+            <p class="pain"><b>“비워 두면 수입이 없어요”</b> · 수익률 0.15%(전국 0.78%), 거래 약 30% 감소</p>
+            <h3>기다리는 동안에도 공간이 일해요</h3>
+            <p>정식 임대가 잡히면 언제든 등록을 멈출 수 있고, 원상복구 보증금으로 부담을 줄여요.</p>
+            <div class="num">월 8일 대여 시 연 +420만 원 <span class="demo-badge">팀 가정치</span></div>
+            <p class="muted">30평 상가 기준 예시 · 실제 수익은 공간·기간에 따라 달라요</p>
+          </div>
+          <div class="bcard reveal">
+            <span class="who">원도심</span>
+            <p class="pain"><b>“사람이 오지 않아요”</b> · 명동 공실률 27.0%</p>
+            <h3>불 꺼진 1층에 다시 불이 켜져요</h3>
+            <p>생일카페, 전시, 공방, 팝업처럼 짧고 새로운 콘텐츠가 이어지면 원도심을 찾을 이유가 생길 거라 기대해요.</p>
+          </div>
+          <div class="bcard reveal" style="--d:.1s">
+            <span class="who">강원의 다음 창업</span>
+            <p class="pain"><b>“여는 사람은 많은데 크지 못해요”</b> · 1년 생존율 1위, 고성장기업 공동 최하위</p>
+            <h3>한 번의 경험이 다음 도전으로</h3>
+            <p>창업을 해 본 청년의 의향이 더 높게 나타났어요. 부담 없는 첫 경험의 기회를 늘리고, 정식 입점과 지역 정착으로 이어지게 하는 것이 목표예요.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="dchap" id="c8">
+        ${head("c8", "08", "분석 방법", "숫자는 이렇게 다뤘어요", "수업에서 배운 데이터 개념을 이 자료에 그대로 적용했어요. 위 카드에 붙은 개념 태그를 누르면 이곳으로 이어져요.")}
+        <div class="data-grid">
+          <div class="data-card mcard reveal" id="m13">
+            <span class="mtag">정규화</span>
+            <h3>건수가 아니라 ‘비율’로 비교했어요</h3>
+            <p class="sub">지역마다 상가 수도, 인구도 달라요. 그래서 빈 상가 ‘수’ 대신 <b>공실률</b>, 인구 ‘수’ 대신 <b>증감률</b>로 비교했어요.</p>
+            <ul class="mlist">
+              <li><b>규모가 다르면 비율로</b> 동내면은 +6,028명(+35.7%), 명동 일대는 −287명(−8.4%). 인구 규모가 달라 사람 수보다 증감률로 비교했어요.</li>
+              <li><b>분모는 같은 시점으로</b> 원주 36.8%를 같은 분기 전국 14.1%로 나눠 <b>약 2.6배</b>. 초안의 2.8배는 2021년 전국 값(13.2%)으로 나눈 값과 같아요.</li>
+            </ul>
+          </div>
+          <div class="data-card mcard reveal" style="--d:.1s" id="m12">
+            <span class="mtag">시간 축과 불완전 구간</span>
+            <h3>비어 있는 기간은 비워 뒀어요</h3>
+            <p class="sub">명동 공실률은 2021년 1분기 다음 값이 2024년 3분기예요. 그 사이를 선으로 이으면 없는 추세가 생겨요.</p>
+            <ul class="mlist">
+              <li><b>빈칸은 0이 아니라 ‘모름’</b> 수상 기록의 빈 해는 실제로 0건이라 0으로 채우지만, 공실률의 빈 분기는 값을 모르는 것이라 0으로도, 보간으로도 채우지 않고 ‘⋯’로만 표시했어요.</li>
+              <li><b>확정되지 않은 값은 빗금으로</b> ‘춘천’으로만 보도된 2024년 4분기와 상가 유형이 없는 2026년 2분기 값은 다른 막대와 구분했어요.</li>
+              <li><b>결론도 조심스럽게</b> 점이 8개뿐이라 ‘공실이 가속된다’고 쓰지 않고 ‘격차가 벌어졌다’까지만 썼어요.</li>
+              <li><b>시점이 섞이면 표시</b> 강원 집합상가는 2분기, 나머지는 3분기 값이라 카드에 따로 적었어요.</li>
+            </ul>
+          </div>
+          <div class="data-card mcard reveal" id="m15">
+            <span class="mtag">파생변수</span>
+            <h3>있는 숫자로 새 지표를 만들었어요</h3>
+            <p class="sub">공실률 두 개를 빼면 ‘격차’가, 수익률 두 개를 나누면 ‘배율’이 돼요. 새 지표가 메시지를 더 분명하게 해요.</p>
+            <ul class="mlist">
+              <li><b>격차 = 명동 − 전국</b> 5.3%p(2021) → 12.7%p(2026). 명동만 따로 나빠지고 있다는 근거예요.</li>
+              <li><b>배율 = 강원 ÷ 전국</b> 상가 수익률 0.15% ÷ 0.78% ≈ 5분의 1.</li>
+            </ul>
+          </div>
+          <div class="data-card mcard reveal" style="--d:.1s" id="m20">
+            <span class="mtag">데이터 결합 · 공간 단위 대응</span>
+            <h3>상권 자료와 동네 자료를 이었어요</h3>
+            <p class="sub">공실률은 ‘상권’, 인구는 ‘법정동’ 단위라 두 표를 이을 공통 열쇠가 없어요. 그래서 상권과 법정동을 잇는 대응표를 직접 만들고, 대응이 불확실하거나 짝이 없는 곳은 따로 처리했어요.</p>
+            <ul class="mlist">
+              <li><b>짝 맞추기</b> 춘천 명동 상권 = 중앙로1~3가·소양로·봉의동 등 8개 법정동.</li>
+              <li><b>짝이 안 맞는 곳은 표시</b> 제천 명동은 소재지를 추정했고, 동두천은 공실률이 없어 뺐어요.</li>
+              <li><b>대표성 확인</b> 명동 일대 주민은 3천여 명뿐이라 상권을 찾는 사람 수를 대신하진 못해요.</li>
+            </ul>
+          </div>
+          <div class="data-card mcard reveal" id="m06">
+            <span class="mtag">선별 편향 · 상관</span>
+            <h3>데이터가 답할 수 없는 질문은 묻지 않았어요</h3>
+            <p class="sub">“원도심 인구가 줄어서 상가가 비었다”는 그럴듯하지만, 직접 계산해 보니 이 자료로는 말할 수 없었어요.</p>
+            <ul class="mlist">
+              <li><b>표본이 골라져 있어요</b> 보도에 나온 ‘공실률 상위’ 5개 상권만 있어서 전체를 대표하지 않아요.</li>
+              <li><b>방향도 반대</b> 공실률과 인구 증감률의 순위상관은 ρ = +0.7. 인구가 더 줄어든 곳일수록 공실률이 높은 관계가 아니었어요.</li>
+              <li><b>함께 나타난다고 원인은 아니에요</b> 창업을 해 본 청년의 의향(43.3%)이 높지만, 원래 의향이 높은 청년이 창업을 해 봤을 수도 있어요. 그래서 ‘경험하면 의향이 오른다’고 쓰지 않았어요.</li>
+              <li><b>그래서</b> 원인은 단정하지 않고, ‘인구는 정체인데 원도심은 빈다’는 현상까지만 주장했어요.</li>
+            </ul>
+          </div>
+          <div class="data-card mcard reveal" style="--d:.1s" id="m18">
+            <span class="mtag">그래프의 문법</span>
+            <h3>그래프 한 장에 주장 하나</h3>
+            <p class="sub">질문의 종류에 따라 그래프를 골랐어요.</p>
+            <ul class="mlist">
+              <li><b>비교</b> 강원 vs 전국은 짝 막대. 강원만 파란색으로 강조했어요.</li>
+              <li><b>증감</b> 늘고 준 것은 0을 기준으로 양쪽에 그리고, 모든 막대를 같은 눈금(−10~+40%)으로 그렸어요.</li>
+              <li><b>원그래프는 쓰지 않았어요</b> 항목이 많고 값 차이가 작아 읽기 어렵기 때문이에요.</li>
+            </ul>
+          </div>
+          <div class="data-card mcard wide reveal" id="m21">
+            <span class="mtag">AI 검증 과정 공개</span>
+            <h3>AI와 초안이 만든 숫자를 그대로 쓰지 않았어요</h3>
+            <p class="sub">팀 초안과 다른 AI 보고서의 수치를 보도·통계와 하나씩 대조했어요. 맞지 않는 값은 고치거나 지웠어요.</p>
+            <div class="mini3">
+              <div><b>7개</b><span>수정·삭제한 항목</span></div>
+              <div><b>3묶음</b><span>확인이 안 돼 쓰지 않은 수치</span></div>
+              <div><b>2개</b><span>서로 달라 하나로 맞춘 가정치</span></div>
+            </div>
+            <div class="vtable-wrap"><table class="vtable">
+              <thead><tr><th>초안 값</th><th>대조 후</th><th>이유</th></tr></thead>
+              <tbody>
+                <tr><td>전국 평균 공실률 13.2%</td><td><b>14.7%</b></td><td>2021년 1분기 값이 최신 값처럼 쓰였어요</td></tr>
+                <tr><td>원주 = 전국의 2.8배</td><td><b>약 2.6배</b></td><td>같은 분기(2026년 1분기) 전국 값으로 다시 나눴어요</td></tr>
+                <tr><td>“원주 전국 1위 수준”</td><td><b>보도된 상위 상권 중 최고</b></td><td>전체 상권을 다 본 순위가 아니에요</td></tr>
+                <tr><td>춘천 명동 25.1%</td><td><b>27.0%</b></td><td>최신 분기(2026년 2분기)로 바꿨어요</td></tr>
+                <tr><td>강원도 전체 16.8%</td><td><b>중대형 19.3% · 일반 16.9%</b></td><td>출처와 상가 유형을 알 수 없었어요</td></tr>
+                <tr><td>서울 명동 11.5%</td><td><b>삭제</b></td><td>출처가 없어요</td></tr>
+                <tr><td>‘KOSIS·한국부동산원 검증’ 배지</td><td><b>삭제</b></td><td>원자료와 아직 대조하지 않았어요</td></tr>
+                <tr class="grp"><td colspan="3">쓰지 않은 수치</td></tr>
+                <tr><td>다른 AI 보고서: 춘천 인구 −0.96%, 원도심 10,450 → 9,280명, r = −0.96</td><td><b>사용 보류</b></td><td>확인된 값(−0.66%, 7,653명)과 맞지 않아요</td></tr>
+                <tr><td>명동 2023년 4분기 21.2%, 2026년 3분기 26.2%</td><td><b>사용 보류</b></td><td>검색으로 찾을 수 없었어요</td></tr>
+                <tr><td>동두천 +3.0%p, 원주 +1.1%p</td><td><b>사용 보류</b></td><td>원주는 +5.7%p로 확인돼 맞지 않아요</td></tr>
+                <tr class="grp"><td colspan="3">하나로 맞춘 서비스 가정치</td></tr>
+                <tr><td>초기 비용 절감률 “94.8%”, “95%”</td><td><b>2,300만 → 22만 원으로 표기</b></td><td>두 값을 계산하면 약 99%라 비율 대신 금액으로 적었어요</td></tr>
+                <tr><td>건물주 수익 “연 420만 원”, “840만 원+”</td><td><b>월 8일 대여 시 연 +420만 원</b></td><td>840만 원은 손실 −420만 원과 수익 +420만 원의 차이였어요</td></tr>
+              </tbody>
+            </table></div>
+            <p class="src">모든 통계는 공개 보도와 2차 출처를 통해 인용했고, 한국부동산원 R-ONE 등 원자료와의 대조, 전체 검증 건수와 일치율 기록은 다음 과제예요. ‘팀 가정치’는 공식 통계가 아닌 서비스 기획 단계의 추정치예요.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="dcta reveal">
+        <h2 class="title-md">빈 상가와 청년, 지금 바로 이어 보세요</h2>
+        <div class="row">
+          <a class="btn btn-primary" href="#/spaces">공간 찾기</a>
+          <a class="btn btn-grey" href="#/host">공간 등록하기</a>
+        </div>
+      </div>
+    </div>`,
+    mount() {
+      const chips = $$(".dnav .chip");
+      $$("#main [data-chap]").forEach(c => c.addEventListener("click", () => {
+        const t = document.getElementById(c.dataset.chap);
+        t.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (t.classList.contains("mcard")) { t.classList.add("flash"); setTimeout(() => t.classList.remove("flash"), 1800); }
+      }));
+      if (!("IntersectionObserver" in window)) return;
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting) return;
+        chips.forEach(c => c.classList.toggle("on", c.dataset.chap === e.target.id));
+      }), { rootMargin: "-40% 0px -55% 0px" });
+      CHAPTERS.forEach(([id]) => io.observe(document.getElementById(id)));
+      return () => io.disconnect();
+    }
+  };
+};
+
+// 홍보 키트·성과 리포트는 따로 된 화면 대신 로드맵 04절 안에서 미리보기로 보여 준다
+const kitPage = pages.kit, reportPage = pages.report;
+pages.kit = () => pages.roadmap("kit");
+pages.report = () => pages.roadmap("report");
+pages.roadmap = focus => {
+  const toH3 = h => h.replace(/<h1 class="title-lg"/g, '<h3 class="title-md"').replace(/<\/h1>/g, "</h3>");
+  const kit = kitPage(), rep = reportPage();
+  kit.html = toH3(kit.html); rep.html = toH3(rep.html);
+  const STAGES = [
+    ["r1", "조사", "done", "완료"],
+    ["r2", "기획", "done", "완료"],
+    ["r3", "구현", "now", "현재"],
+    ["r4", "기능 확장", "next", "예정"],
+    ["r5", "설문조사", "next", "예정"]
+  ];
+  const badge = (st, t) => `<span class="rm-badge ${st}">${t}</span>`;
+  const Q = (who, items) => `<div class="sv-card reveal"><h3>${who}</h3><ol class="sv-list">${items.map(([q, a]) => `<li><b>${q}</b>${a ? `<span>${a}</span>` : ""}</li>`).join("")}</ol></div>`;
+  return {
+    html: `<div class="container">
+      <div class="page-head">
+        <p class="eyebrow" style="margin:0">로드맵</p>
+        <h1 class="title-lg">데이터에서 시작해,<br>설문으로 검증해요</h1>
+        <p class="sub">강원이어라가 지금까지 해 온 일과 앞으로 할 일을 다섯 단계로 정리했어요.</p>
+      </div>
+
+      <ol class="rm-track" aria-label="진행 단계">
+        ${STAGES.map(([id, t, st, s], i) => `<li class="${st}"><button type="button" data-chap="${id}"><span class="rm-dot">${st === "done" ? `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 5"/></svg>` : i + 1}</span><b>${t}</b><small>${s}</small></button></li>`).join("")}
+      </ol>
+
+      <section class="rm-sec" id="r1">
+        <div class="rm-head reveal"><span class="rm-no">01</span>${badge("done", "완료")}<h2 class="title-md">조사 · 강원 원도심에 무슨 일이 있나</h2></div>
+        <p class="lead reveal">공개 통계와 보도 자료로 상가·건물주·청년·정책 네 방향을 살폈어요.</p>
+        <div class="rm-grid4">
+          <div class="rm-fact reveal"><span>상가</span><b>27.0%</b><p>춘천 명동 중대형 상가 공실률. 전국(14.3%)과의 격차가 5년 새 두 배 넘게 벌어졌어요.</p></div>
+          <div class="rm-fact reveal" style="--d:.06s"><span>건물주</span><b>0.15%</b><p>강원 중대형 상가 분기 수익률. 전국의 약 5분의 1이에요.</p></div>
+          <div class="rm-fact reveal" style="--d:.12s"><span>청년</span><b>11,916명</b><p>3년간 강원에서 수도권으로 빠져나간 20대. 청년 창업은 가장 많이 줄었어요.</p></div>
+          <div class="rm-fact reveal" style="--d:.18s"><span>가능성</span><b>2배</b><p>창업을 해 본 청년의 창업 의향. 정부도 2027년부터 빈 상가를 청년 공간으로 바꿔요.</p></div>
+        </div>
+        <p class="reveal"><a class="btn btn-sm btn-soft" href="#/data">조사 내용 자세히 보기 ›</a></p>
+      </section>
+
+      <section class="rm-sec" id="r2">
+        <div class="rm-head reveal"><span class="rm-no">02</span>${badge("done", "완료")}<h2 class="title-md">기획 · 비어 있는 기간을 잇는다</h2></div>
+        <p class="lead reveal">조사에서 찾은 두 문제, ‘비어 있는 상가’와 ‘공간이 없는 청년’을 짧은 대여로 연결하기로 했어요.</p>
+        <div class="rm-plan reveal">
+          <div><b>누구와 누구를</b><p>다음 임차인을 기다리는 건물주 ↔ 작게 시작해 보고 싶은 청년 창업자</p></div>
+          <div><b>어떻게</b><p>하루~4주 단기 대여. 보증금·1년 계약 없이 필요한 기간만</p></div>
+          <div><b>AI가 돕는 일</b><p>공간에 맞는 업종 진단 · 한 줄 요청으로 공간 추천 · 건물주에게 보낼 제안서 작성</p></div>
+          <div><b>안심 장치</b><p>원상복구 보증금 보관 · 입점 전후 사진 비교 · 정식 임대가 잡히면 언제든 등록 중단</p></div>
+        </div>
+      </section>
+
+      <section class="rm-sec" id="r3">
+        <div class="rm-head reveal"><span class="rm-no">03</span>${badge("now", "현재")}<h2 class="title-md">구현 · 지금 앱에서 할 수 있는 일</h2></div>
+        <div class="rm-feats">
+          <a class="rm-feat reveal" href="#/spaces"><span class="ico" aria-hidden="true">📍</span><b>공간 찾기</b><p>지도와 목록으로 빌릴 수 있는 원도심 빈 상가를 둘러봐요.</p></a>
+          <a class="rm-feat reveal" style="--d:.06s" href="#/space/1"><span class="ico" aria-hidden="true">🔎</span><b>AI 공간 진단</b><p>층수·면적·주변 업종으로 이 공간에 어울리는 업종을 점수로 보여줘요.</p></a>
+          <a class="rm-feat reveal" style="--d:.12s" href="#/request"><span class="ico" aria-hidden="true">✦</span><b>한 줄 요청</b><p>“2주간 15평 디저트 팝업”처럼 적으면 공간을 추천하고 제안서까지 써 줘요.</p></a>
+          <a class="rm-feat reveal" style="--d:.18s" href="#/host"><span class="ico" aria-hidden="true">🏢</span><b>공간 등록</b><p>건물주가 위치·면적·대여 가능 기간을 등록해요.</p></a>
+        </div>
+      </section>
+
+      <section class="rm-sec" id="r4">
+        <div class="rm-head reveal"><span class="rm-no">04</span>${badge("next", "예정")}<h2 class="title-md">기능 확장 · 대여 이후까지 돕기</h2></div>
+        <p class="lead reveal">매칭에서 끝나지 않고, 운영과 그다음 대여로 이어지게 할 두 기능을 개발할 예정이에요. 아래는 화면 구성 미리보기예요.</p>
+        <div class="pv-tabs reveal" role="tablist" aria-label="예정 기능 미리보기">
+          <button type="button" role="tab" data-pv="kit"><span aria-hidden="true">📣</span> 홍보 키트<small>포스터 · SNS 문구 · 방문 예측</small></button>
+          <button type="button" role="tab" data-pv="report"><span aria-hidden="true">📊</span> 성과 리포트<small>운영 결과를 정리해 공유</small></button>
+        </div>
+        <div class="pv" data-panel="kit" role="tabpanel">${kit.html}</div>
+        <div class="pv" data-panel="report" role="tabpanel" hidden>${rep.html}</div>
+      </section>
+
+      <section class="rm-sec" id="r5">
+        <div class="rm-head reveal"><span class="rm-no">05</span>${badge("next", "예정")}<h2 class="title-md">설문조사 · 숫자 너머의 목소리 듣기</h2></div>
+        <p class="lead reveal">공개 통계로는 ‘상가가 비어 있다’는 것까지만 알 수 있어요. 청년들이 어떤 공간을 원하고 어떻게 쓰고 싶은지는 직접 물어봐야 해요. 데이터 분석에 이어 SNS를 통한 온라인 설문조사를 진행할 예정이에요.</p>
+        <div class="sv-why reveal">
+          <h3>설문으로 확인할 것</h3>
+          <ul>
+            <li><b>이용 방식 구체화</b> 어떤 용도로, 얼마 동안, 어느 정도 비용이면 공간을 빌리고 싶은지</li>
+            <li><b>대여 조건 구체화</b> 기획 단계에서 잡은 대여료·기간을 실제 응답에 맞게 다듬기</li>
+            <li><b>원도심 인식</b> 원도심을 얼마나 찾는지, 빈 상가에 새 공간이 열리면 찾아갈 의향이 있는지</li>
+          </ul>
+        </div>
+        <p class="sv-note reveal"><span class="demo-badge">예시 문항</span> 청년·대학생을 중심으로 진행하고, 실제 문항은 설문 설계 단계에서 확정해요.</p>
+        <div class="sv-grid">
+          ${Q("공간 이용 의향", [
+            ["단기로 공간을 빌린다면 어떤 용도로 쓰고 싶나요?", "생일카페·굿즈 / 전시 / 공방·클래스 / 음식·브랜드 팝업 / 기타"],
+            ["원하는 대여 기간은 얼마인가요?", "하루 / 2~3일 / 1주 / 2주 / 4주"],
+            ["하루 대여료로 낼 수 있는 금액은?", "3만 원 미만 / 3~5만 / 5~8만 / 8~12만 / 12만 원 이상"],
+            ["공간을 고를 때 가장 중요하게 보는 것은?", "위치 / 가격 / 크기 / 층수·통창 / 설비"]
+          ])}
+          ${Q("창업·팝업 경험", [
+            ["창업이나 팝업을 해 봤거나 해 보고 싶은 적이 있나요?", "해 봤다 / 해 보고 싶다 / 관심 없다"],
+            ["망설였다면 가장 큰 이유는?", "초기 비용 / 실패 부담 / 공간 찾기 / 계약 절차 / 홍보"],
+            ["짧게 빌려 먼저 해 볼 수 있다면 도전할 의향이 있나요?", "5점 척도"]
+          ])}
+          ${Q("원도심 인식", [
+            ["춘천 명동·원주 중앙동 같은 원도심에 얼마나 자주 가나요?", "주 1회 이상 / 월 1~3회 / 거의 안 감"],
+            ["빈 상가에 팝업·전시가 열리면 들러 볼 의향이 있나요?", "5점 척도"],
+            ["원도심이 다시 붐비려면 무엇이 필요하다고 생각하나요?", "자유 응답"]
+          ])}
+        </div>
+        <div class="sv-flow reveal">
+          <div><b>설계</b><span>문항 확정</span></div><i aria-hidden="true">›</i>
+          <div><b>배포</b><span>SNS로 온라인 설문 공유 (청년·대학생 중심)</span></div><i aria-hidden="true">›</i>
+          <div><b>분석</b><span>응답 정리, 기획 내용과 비교</span></div><i aria-hidden="true">›</i>
+          <div><b>반영</b><span>대여료·기간·안심 장치 조정</span></div>
+        </div>
+      </section>
+
+      <div class="dcta reveal">
+        <h2 class="title-md">지금 구현된 기능부터 써 보세요</h2>
+        <div class="row">
+          <a class="btn btn-primary" href="#/request">한 줄로 공간 요청하기</a>
+          <a class="btn btn-grey" href="#/spaces">공간 둘러보기</a>
+        </div>
+      </div>
+    </div>`,
+    mount() {
+      kit.mount && kit.mount();
+      rep.mount && rep.mount();
+      const tabs = $$(".pv-tabs [data-pv]");
+      const pick = k => {
+        tabs.forEach(t => { const on = t.dataset.pv === k; t.classList.toggle("on", on); t.setAttribute("aria-selected", String(on)); });
+        $$(".pv[data-panel]").forEach(el => { el.hidden = el.dataset.panel !== k; });
+      };
+      tabs.forEach(t => t.addEventListener("click", () => pick(t.dataset.pv)));
+      pick(focus === "report" ? "report" : "kit");
+      if (focus) setTimeout(() => document.getElementById("r4").scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      const steps = $$(".rm-track button");
+      $$("#main [data-chap]").forEach(c => c.addEventListener("click", () => document.getElementById(c.dataset.chap).scrollIntoView({ behavior: "smooth", block: "start" })));
+      if (!("IntersectionObserver" in window)) return;
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (e.isIntersecting) steps.forEach(s => s.classList.toggle("on", s.dataset.chap === e.target.id));
+      }), { rootMargin: "-40% 0px -55% 0px" });
+      STAGES.forEach(([id]) => io.observe(document.getElementById(id)));
+      return () => io.disconnect();
+    }
+  };
+};
+
+pages.notfound = () => ({
+  html: `<div class="container" style="padding:96px 0;text-align:center;display:grid;gap:16px;justify-items:center">
+    <h1 class="title-lg">페이지를 찾을 수 없어요</h1>
+    <a class="btn btn-primary" href="#/">홈으로</a>
+  </div>`
+});
+
+/* ---------------- 라우터 ---------------- */
+let cleanups = [];
+function render() {
+  cleanups.forEach(f => f()); cleanups = [];
+  const [name = "", arg] = location.hash.replace(/^#\/?/, "").split("/");
+  const key = name || "home";
+  const page = pages[key] ? pages[key](arg) : pages.notfound();
+  const main = $("#main");
+  main.innerHTML = page.html;
+  main.firstElementChild && main.firstElementChild.classList.add("fade-in");
+  const c = page.mount && page.mount();
+  if (typeof c === "function") cleanups.push(c);
+  cleanups.push(setupReveal());
+  const navKey = key === "space" ? "spaces" : key;
+  $$("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === navKey));
+  if (navKey === "kit" || navKey === "report") $('.topnav [data-nav="roadmap"]').classList.add("on");
+  window.scrollTo({ top: 0, behavior: "instant" });
+  const titles = { home: "강원이어라 · 강원 원도심 빈 상가와 청년을 잇는 공간 매칭", spaces: "공간 찾기 · 강원이어라", space: "공간 상세 · 강원이어라", request: "한 줄 요청 · 강원이어라", kit: "홍보 키트 · 강원이어라", report: "성과 리포트 · 강원이어라", roadmap: "로드맵 · 강원이어라", host: "공간 등록 · 강원이어라", data: "왜 강원이어라인가 · 강원이어라" };
+  document.title = titles[key] || "강원이어라";
+}
+window.addEventListener("hashchange", render);
+// 미리보기 창(iframe srcdoc)에서는 href="#/..."가 바깥 페이지 주소 기준으로 풀려 화면이 깨진다.
+// 그래서 페이지 안 링크는 기본 이동을 막고 해시만 직접 바꾼다. 일반 브라우저에서도 동작은 같다.
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  const h = a.getAttribute("href");
+  if (h === "#main") { $("#main").focus(); return; }
+  if (location.hash === h || (h === "#/" && location.hash === "")) render();
+  else location.hash = h;
+});
+// 미리보기 창(샌드박스 iframe)은 폼 제출을 막아서 submit 이벤트가 아예 생기지 않는다.
+// 제출 버튼 클릭(Enter 제출 포함)을 가로채 submit 이벤트를 직접 보낸다. 실제 페이지 이동은 원래도 없다.
+function submitForm(form) {
+  form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest('form button[type="submit"]');
+  if (!b || b.disabled) return;
+  e.preventDefault();
+  submitForm(b.form);
+});
+window.addEventListener("scroll", () => $(".topbar").classList.toggle("scrolled", scrollY > 4), { passive: true });
+render();
+
+</script>
+</body>
+</html>
